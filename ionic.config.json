@@ -1,5 +1,7 @@
 {
   "name": "charmed-circle",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }
