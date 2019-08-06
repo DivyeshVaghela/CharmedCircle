@@ -1,0 +1,30 @@
+<ion-content class="ion-text-center" padding>
+
+  <ion-grid style="height: 100%;">
+    <ion-row style="height: 100%;" align-items-center justify-content-center>
+      <ion-col>
+        <ion-card class="card-logo">
+          <ion-card-content>
+            <img src="assets/images/logo.png">
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card color="light">
+          <ion-card-header>
+            <ion-card-title>
+              Sign in
+            </ion-card-title>
+          </ion-card-header>
+      
+          <ion-card-content>
+            <ion-button color="danger" fill="outline" (click)="authService.googleSignin()">
+              <ion-icon slot="start" name="logo-google"></ion-icon>
+              Signin Using Google
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+</ion-content>

@@ -1,8 +1,13 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar class="ion-color-dark outline">
     <ion-title>
       Charmed Circle (Trial)
     </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="authService.logout()">
+        <ion-icon slot="icon-only" name="log-out"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
