@@ -30,7 +30,6 @@ export class AppComponent {
       this.splashScreen.hide();
 
       //check whether the user is authenticated
-      this.authService.checkLanding();
       this.authService.user$.subscribe((userState) => {
         let destinationUrl = '/login';
         if (userState != null){

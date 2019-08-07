@@ -12,9 +12,7 @@ export class LoginPage implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {
-    authService.checkLanding();
-  }
+  ) {}
 
   ngOnInit() {
   }

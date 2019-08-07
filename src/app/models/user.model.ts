@@ -4,4 +4,7 @@ export interface User{
   displayName: string;
   photoURL?: string;
   phoneNumber?: string;
+  
+  lastLoginTime?: Date;
+  lastLogoutTime?: Date;
 }
