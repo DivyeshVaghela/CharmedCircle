@@ -16,4 +16,63 @@
     The world is your oyster.
     <p>If you get lost, the <a target="_blank" rel="noopener" href="https://ionicframework.com/docs/">docs</a> will be your guide.</p>
   </div>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Location</ion-card-title>
+    </ion-card-header>
+
+    <ion-list *ngIf="locationService.location$ | async as location else noLocation">
+      <ion-item>
+        <ion-label>Latitude</ion-label>
+        <p>{{ location.latitude }}</p>
+      </ion-item>
+      <ion-item>
+        <ion-label>Longitude</ion-label>
+        <p>{{ location.longitude }}</p>
+      </ion-item>
+
+      <span *ngIf="location?.area as area else noArea">
+        <ion-item>
+          <ion-label>Country</ion-label>
+          <p>{{ area.country }} ({{ area.countryCode }})</p>
+        </ion-item>
+        <ion-item>
+          <ion-label>State</ion-label>
+          <p>{{ area.state }} ({{ area.administrativeArea }})</p>
+        </ion-item>
+        <ion-item>
+          <ion-label>City</ion-label>
+          <p>{{ area.city }} ({{ area.subAdministrativeArea }})</p>
+        </ion-item>
+        <ion-item>
+          <ion-label>Postal code</ion-label>
+          <p>{{ area.postalCode }}</p>
+        </ion-item>
+        <ion-item>
+          <ion-label>Sublocality</ion-label>
+          <p>{{ area.subLocality }}, {{ area.thoroughFare }}, {{ area.subThoroughDare }}</p>
+        </ion-item>
+        <ion-item>
+          <ion-label>Nearby areas</ion-label>
+          <p>{{ area.areasOfInterest | json }}</p>
+        </ion-item>
+      </span>
+
+      <ng-template #noArea>
+        <ion-item>
+          <ion-label>Area</ion-label>
+          <p>Area information not available</p>
+        </ion-item>
+      </ng-template>
+    </ion-list>
+
+    <p>{{ location | async }}</p>
+
+    <ng-template #noLocation>
+      <ion-item>
+        <ion-label>Location data not available</ion-label>
+      </ion-item>
+    </ng-template>
+  </ion-card>
 </ion-content>

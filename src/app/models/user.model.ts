@@ -1,3 +1,5 @@
+import { Location } from './location.model';
+
 export interface User{
   uid: String;
   email: string;
@@ -7,4 +9,6 @@ export interface User{
   
   lastLoginTime?: Date;
   lastLogoutTime?: Date;
+
+  lastKnownLocation?: Location;
 }
