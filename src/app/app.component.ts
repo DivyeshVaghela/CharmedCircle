@@ -36,7 +36,7 @@ export class AppComponent {
           if (this.router.url !== '/login')
             destinationUrl = this.router.url;
           else
-          destinationUrl = '/home';
+          destinationUrl = '/';
         }
         this.ngZone.run(() => this.router.navigateByUrl(destinationUrl));
       });

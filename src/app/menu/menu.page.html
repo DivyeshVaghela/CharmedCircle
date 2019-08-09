@@ -1,0 +1,53 @@
+<ion-split-pane contentId="main-content">
+
+  <ion-menu class="styled" contentId="main-content">
+    <ng-container *ngIf="authService.user$ | async else title"></ng-container>
+    <ng-template #title>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Charmed Circle</ion-title>
+        </ion-toolbar>
+      </ion-header>
+    </ng-template>
+    <ion-content>
+      <div class="ion-text-center" *ngIf="authService.user$ | async as user; else loginOption">
+        <img [src]="user.photoURL" class="profile-picture">
+        <h3>{{ user.displayName }}</h3>
+        <p>{{ user.email }}</p>
+      </div>
+      <ng-template #loginOption>
+        <ion-menu-toggle auto-hide="false">
+          <ion-item routerDirection="root" routerLink="/login" color="danger" detail="true">
+            <h5>
+              You are not signed in, please sign in to access all the features
+            </h5>
+          </ion-item>
+        </ion-menu-toggle>
+      </ng-template>
+
+      <ion-list>
+        <ion-menu-toggle auto-hide="false" *ngFor="let menuItem of menuItems">
+          <ion-item *ngIf="menuItem.show !== false"
+            [routerLink]="menuItem.url"
+            routerDirection="root"
+            [class.active-item]="selectedPath.startsWith(menuItem.url)"
+            detail="true">
+            <ion-icon slot="start" [name]="menuItem.icon"></ion-icon>
+            <ion-label>{{ menuItem.label }}</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="false" *ngIf="authService.isAuthenticated()">
+          <ion-item (click)="authService.logout()">
+            <ion-icon slot="start" name="log-out"></ion-icon>
+            <ion-label>Sign out</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+      </ion-list>
+      
+    </ion-content>
+  </ion-menu>
+
+  <ion-router-outlet id="main-content"></ion-router-outlet>
+
+</ion-split-pane>

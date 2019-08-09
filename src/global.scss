@@ -30,9 +30,27 @@
   font-family: 'Raleway', sans-serif;
 }
 
-.ion-page > *:first-child {
+.ion-page > *:first-child, ion-menu > *:first-child > *:first-child {
   padding-top: 22px;
 }
+
+.active-item {
+  --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.profile-picture{
+  width: 40%;
+  margin: 5px;
+  border: 5px solid #c3cfe2;
+  border-radius: 50%;
+}
+
+hr {
+  border-bottom: .4px solid black;
+  height: 1px;
+  margin: 40px 0;
+}
+
 
 ion-header {
   width: initial;

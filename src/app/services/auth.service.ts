@@ -28,25 +28,19 @@ export class AuthService {
   ) {
     this.platform.ready().then(() => {
 
-      this.checkToken().then(() => {
-        console.log('this.isAuthenticated()', this.isAuthenticated());
-        if (this.isAuthenticated()) {
-          this.afAuth.authState.pipe(
-            switchMap(fireUser => {
-              console.log('fireUser', fireUser);
-              if (fireUser && fireUser.uid) {
-                return this.afStore.doc<User>(`users/${fireUser.uid}`).valueChanges();
-              } else {
-                return of(null);
-              }
-            })
-          ).subscribe(user => {
-            this.user$.next(user);
-          }, error => {
-            console.log('Firestore error', error);
-          });
-        }
-
+      this.checkToken();
+      this.afAuth.authState.pipe(
+        switchMap(fireUser => {
+          if (fireUser && fireUser.uid) {
+            return this.afStore.doc<User>(`users/${fireUser.uid}`).valueChanges();
+          } else {
+            return of(null);
+          }
+        })
+      ).subscribe(user => {
+        this.user$.next(user);
+      }, error => {
+        console.log('Firestore error', error);
       });
     });
 
@@ -96,9 +90,9 @@ export class AuthService {
    * clear the user login data from device storage
    */
   async logout() {
-    console.log('Within Logout');
+
     this.googlePlus.logout().then((value) => {}, (error) => {
-      console.log('Google Plus log out error', error);
+      console.log('GP log out error', error);
     });
 
     const userRef: AngularFirestoreDocument<User> = this.afStore.doc(`users/${this.user$.value.uid}`);
@@ -109,6 +103,7 @@ export class AuthService {
     await this.afAuth.auth.signOut().then(() => {}, (error) => {
       console.log('Firebase log out error', error);
     });
+
     this.storage.remove(this.USER_KEY).then(() => {
       this.user$.next(null);
     }, (error) => {

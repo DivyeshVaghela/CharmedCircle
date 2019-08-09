@@ -3,26 +3,21 @@
   <ion-grid style="height: 100%;">
     <ion-row style="height: 100%;" align-items-center justify-content-center>
       <ion-col>
-        <ion-card class="card-logo">
-          <ion-card-content>
-            <img src="assets/images/logo.png">
-          </ion-card-content>
-        </ion-card>
+          <img src="assets/images/logo.png">
 
-        <ion-card color="light">
-          <ion-card-header>
-            <ion-card-title>
-              Sign in
-            </ion-card-title>
-          </ion-card-header>
-      
-          <ion-card-content>
-            <ion-button color="danger" fill="outline" (click)="authService.googleSignin()">
-              <ion-icon slot="start" name="logo-google"></ion-icon>
-              Signin Using Google
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
+          <h1>
+            Sign in
+          </h1>
+          <ion-button color="danger" fill="outline" (click)="authService.googleSignin()">
+            <ion-icon slot="start" name="logo-google"></ion-icon>
+            Signin Using Google
+          </ion-button>
+
+          <hr style="width:20%; margin-left:40%; margin-right: 40%;">
+
+          <ion-button fill="clear" color="dark" routerLink="/">
+            Continue without Signing in
+          </ion-button>
       </ion-col>
     </ion-row>
   </ion-grid>

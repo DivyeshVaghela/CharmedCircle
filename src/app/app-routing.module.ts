@@ -3,13 +3,9 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuardService } from './services/auth-guard.service';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: '', redirectTo: 'charmed-circle', pathMatch: 'full' },
+  { path: 'charmed-circle', loadChildren: () => import('./menu/menu.module').then(m => m.MenuPageModule) },
   { path: 'login', loadChildren: './login/login.module#LoginPageModule' },
-  { 
-    path: 'home', 
-    canActivate: [AuthGuardService],
-    loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
-  },
 ];
 
 @NgModule({
