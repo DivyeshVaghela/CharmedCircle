@@ -1,0 +1,6 @@
+@import "~@ionic/angular/css/padding.css";
+
+.form-error{
+  @extend ion-padding-start;
+  @extend ion-padding-end;
+}

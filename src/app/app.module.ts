@@ -20,18 +20,20 @@ import { AppRoutingModule } from './app-routing.module';
 import { AuthService } from './services/auth.service';
 import { AuthGuardService } from './services/auth-guard.service';
 
+import { SlugifyPipe } from './pipes/slugify.pipe';
+
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, SlugifyPipe],
   entryComponents: [],
   imports: [
     BrowserModule, 
     IonicModule.forRoot(), 
     IonicStorageModule.forRoot(),
     AppRoutingModule,
-
+    
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFirestoreModule,
-    AngularFireAuthModule,
+    AngularFireAuthModule
   ],
   providers: [
     StatusBar,
@@ -40,7 +42,9 @@ import { AuthGuardService } from './services/auth-guard.service';
 
     GooglePlus,
     Geolocation,
-    NativeGeocoder
+    NativeGeocoder,
+
+    SlugifyPipe
   ],
   bootstrap: [AppComponent]
 })

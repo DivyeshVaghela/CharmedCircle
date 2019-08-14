@@ -1,0 +1,101 @@
+<ion-header>
+  <ion-toolbar class="ion-color-dark outline">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>{{ community ? community.name : 'Community' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ng-container *ngIf="community else loading">
+    <div class="ion-padding-start ion-padding-end ion-padding-bottom">
+      <h2>
+        {{ community.name }}
+        <span>
+          <ion-chip color="tertiary" outline="true" *ngIf="community.isPending">
+            <ion-label><ion-icon name="contrast"></ion-icon> Pending</ion-label>
+          </ion-chip>
+        </span>
+        <br>
+        <small *ngIf="community.subtitle">{{ community.subtitle }}</small>
+      </h2>
+
+      <p *ngIf="communityArea">
+        <ion-icon name="pin" size="small" class="align"></ion-icon> 
+        {{ communityArea.city }}, {{ communityArea.state }}, {{ communityArea.country }} ({{ communityArea.countryCode }})
+      </p>
+  
+      <p>{{ community.details }}</p>
+    </div>
+
+    <ion-card color="light" *ngIf="community.isPending">
+      <ion-card-content>
+        <strong>Note:</strong>
+        <p>This community is <i>pending</i> because there are no enough members. Once there will be enough members, it'll be active. But nobody will be able to interact in a community untill its active.</p>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-item>
+      <ion-label>Posts</ion-label>
+      <p>{{ community.postsCount ? community.postsCount.length : 0 }}</p>
+    </ion-item>
+    <ion-item>
+      <ion-label>Questions</ion-label>
+      <p>{{ community.questionCount ? community.questionCount.length : 0 }}</p>
+    </ion-item>
+    <ion-item>
+      <ion-label>Discussions</ion-label>
+      <p>{{ community.discussionCount ? community.discussionCount.length : 0 }}</p>
+    </ion-item>
+
+    <ion-list>
+      <ion-item-group>
+        <ion-item-divider class="ion-no-padding ion-padding-start ion-padding-end">
+          <ion-label><h2>Members</h2></ion-label>
+          <ion-badge slot="end" mode="ios">{{ community.membersCount }}</ion-badge>
+        </ion-item-divider>
+      </ion-item-group>
+
+      <ion-item *ngFor="let member of members" detail="true" lines="full" routerLink="/charmed-circle/user-profile/{{ member.uid }}">
+        <ion-avatar slot="start"><img src="{{ member.photoURL }}"></ion-avatar>
+        <ion-label>
+          {{ member.displayName }}<br>
+          <p>{{ member.email }}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+    <ion-grid class="ion-no-padding" *ngIf="isMember(community) else join">
+      <ion-row class="ion-text-center">
+        <ion-col>
+          <ion-chip color="success" mode="ios">
+            <ion-label><ion-icon name="checkmark-circle"></ion-icon> Joined</ion-label>
+          </ion-chip>
+        </ion-col>
+        <ion-col>
+          <ion-button color="danger" (click)="leaveCommunity()">
+            Leave Community <ion-icon slot="end" name="log-out"></ion-icon>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  
+    <ng-template #join>
+      <div class="ion-text-center">
+        <ion-button color="primary" expand="block" size="large" (click)="joinCommunity()">
+          <ion-icon slot="start" name="log-in"></ion-icon> Join Now
+        </ion-button>
+      </div>
+    </ng-template>
+  </ng-container>
+
+  <ng-template #loading>
+    <div class="ion-text-center">
+      <h4>Loading..</h4>
+    </div>
+  </ng-template>
+
+</ion-content>

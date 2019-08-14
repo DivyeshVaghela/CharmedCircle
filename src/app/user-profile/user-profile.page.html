@@ -1,0 +1,92 @@
+<ion-header>
+  <ion-toolbar class="ion-color-dark outline">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>{{ user ? user.displayName : 'User Profile' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <div *ngIf="user">
+    
+    <div class="ion-text-center">
+      <img [src]="user.photoURL" class="profile-picture">
+      <h3>{{ user.displayName }}</h3>
+      <p>{{ user.email }}</p>
+    </div>
+  
+    <ng-container *ngIf="isOwnProfile()">
+      <ion-list *ngIf="user.lastKnownLocation?.area as area else noLocationInfo">
+        <ion-item-group>
+          <ion-item-divider color="light">
+            <ion-icon name="pin" slot="start"></ion-icon>
+            <ion-label><h2>Last Known Location</h2></ion-label>
+          </ion-item-divider>
+    
+          <ion-item lines="full">
+            <ion-label>Country</ion-label>
+            <p>{{ area.countryName }}</p>
+          </ion-item>
+          <ion-item lines="full">
+            <ion-label>State</ion-label>
+            <p>{{ area.administrativeArea }}</p>
+          </ion-item>
+          <ion-item lines="full">
+            <ion-label>City</ion-label>
+            <p>{{ area.subAdministrativeArea }}</p>
+          </ion-item>
+          <ion-item lines="full">
+            <ion-label>Time</ion-label>
+            <p>{{ area.timestamp | date:'medium' }}</p>
+          </ion-item>
+        </ion-item-group>
+      </ion-list>
+    
+      <ng-template #noLocationInfo>
+        <ion-item lines="full">
+          <ion-icon slot="start" name="warning"></ion-icon>
+          <ion-label>No Location information</ion-label>
+        </ion-item>
+      </ng-template>
+    </ng-container>
+  
+    <!-- Joined Communities (Locality wise) -->
+    <ion-list *ngIf="joinedCommunities.length !== 0 else noCommunitiesJoined">
+
+      <ion-item-divider>
+        <ion-label><h1>Joined Communities</h1></ion-label>
+        <ion-badge slot="end" mode="ios" class="ion-margin-top ion-margin-end">{{ user.joinedCommunities?.length }}</ion-badge>
+      </ion-item-divider>
+
+      <ion-item-group *ngFor="let joinedCommunity of joinedCommunities">
+        <ion-item-divider color="light" *ngIf="joinedCommunity.area$ | async as area">
+          <ion-label><h2>{{ area.city }}, {{ area.state }}, {{ area.country }} ({{ area.countryCode }})</h2></ion-label>
+          <ion-badge slot="end" mode="ios" color="tertiary" class="ion-margin-end">{{ joinedCommunity.communities.length }}</ion-badge>
+        </ion-item-divider>
+
+        <ion-item *ngFor="let community of joinedCommunity.communities" lines="full" detail="true" 
+          routerLink="/charmed-circle/communities/{{ community.areaId }}/{{ community.communityId }}">
+          <ion-label>
+            {{ community.name }}
+            <p>Joined at {{ community.timestamp | date:'medium' }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-item-group>
+    </ion-list>
+  
+    <ng-template #noCommunitiesJoined>
+      <ion-item lines="full" class="ion-text-center">
+        <p>You haven't joined any communities yet, <a routerLink="/charmed-circle" routerDirection="root">start exploring</a> near by communities..</p>
+      </ion-item>
+    </ng-template>
+
+    <div class="ion-text-center" *ngIf="isOwnProfile()">
+      <br><br>
+      <ion-button color="danger" (click)="authService.logout()">Sign out <ion-icon slot="end" name="log-out"></ion-icon></ion-button>
+    </div>
+  </div>
+
+</ion-content>

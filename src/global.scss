@@ -73,3 +73,25 @@ ion-toolbar {
     color: var(--ion-color-shade);
   }
 }
+
+.text-sm {
+  font-size: small;
+}
+
+img.no-content-placeholder{
+  width:40%;
+  min-width: 220px;
+}
+
+a.no-decoration {
+  text-decoration: none;
+}
+
+ion-chip ion-icon, .align {
+  vertical-align: top;
+}
+
+ion-card-title ion-chip{
+  vertical-align: bottom;
+  margin-top: 0px;
+}

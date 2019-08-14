@@ -1,0 +1,82 @@
+<ion-header>
+  <ion-toolbar class="ion-color-dark outline">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Communities</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-card>
+    <ion-item>
+      <ion-icon slot="start" name="locate" color="primary"></ion-icon>
+      <ion-label>{{ currentLocation?.area.city + ', ' + currentLocation?.area.state + ', ' + currentLocation?.area.countryName }}</ion-label>
+    </ion-item>
+  </ion-card>
+
+  <ion-card *ngFor="let community of communities">
+    <ion-card-header>
+      <ion-card-title>
+        {{ community.name }}
+        <ion-chip color="tertiary" outline="true" *ngIf="community.isPending">
+          <ion-label><h6><ion-icon name="contrast"></ion-icon> Pending</h6></ion-label>
+        </ion-chip>
+      </ion-card-title>
+      <ion-card-subtitle>{{ community.subtitle }}</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      {{ community.details }}
+      <a class="no-decoration" routerLink="{{community.areaId}}/{{community.communityId}}">More..</a>
+    </ion-card-content>
+
+    <ion-item color="light" class="ion-margin-bottom">
+      <ion-grid class="ion-no-padding">
+        <ion-row class="ion-text-center">
+          <ion-col>
+            Members <br> {{ community.members ? community.members.length : 0 }}
+          </ion-col>
+          <ion-col>
+            Questions <br> {{ community.questionCount ? community.questionCount : 0 }}
+          </ion-col>
+          <ion-col>
+            Discussions <br> {{ community.discussionCount ? community.discussionCount :  0 }}
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+
+    <div class="ion-text-center">
+      <ion-chip color="success" mode="ios" *ngIf="isMember(community) else join">
+        <ion-label><h2><ion-icon name="checkmark-circle"></ion-icon> Joined</h2></ion-label>
+      </ion-chip>
+      <ng-template #join>
+        <ion-button color="primary" expand="full" size="large" class="ion-no-margin" (click)="joinCommunity(community)">
+          <ion-icon slot="start" name="log-in"></ion-icon> Join Now
+        </ion-button>
+      </ng-template>
+    </div>
+    
+  </ion-card>
+
+  <ng-container *ngIf="communities == null || communities.length == 0">
+    <div class="ion-text-center ion-padding">
+      <img src="assets/images/no-content.png" class="no-content-placeholder" alt="No Content">
+      <br>
+      No Community found for your current location,<br><br>
+      
+      <ion-button color="primary" fill="outline" (click)="openNewCommunityForm()">
+        <ion-icon slot="start" name="add"></ion-icon>
+        Create new Community
+      </ion-button>
+    </div>
+  </ng-container>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" (click)="openNewCommunityForm()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>

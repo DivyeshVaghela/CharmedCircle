@@ -1,0 +1,76 @@
+<ion-header>
+  <ion-toolbar class="ion-color-dark outline">
+    <ion-title>Request New Community</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="closeModal()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+
+  <ion-card color="light">
+    <ion-card-content>
+      <strong>NOTE: </strong>
+      <p>The request to create a new community will be sent for your current locality.</p>
+      <p>Approval or dissapproval of the creation of this community is based on other user's response from your locality.</p>
+    </ion-card-content>
+  </ion-card>
+
+  <form [formGroup]="communityForm" class="ion-padding-top">
+    <ion-item>
+      <ion-label position="floating">Name</ion-label>
+      <ion-input type="text" placeholder="A name that reflects the purpose"
+        formControlName="name">
+      </ion-input>
+    </ion-item>
+    <div class="ion-text-right ion-padding-start ion-padding-end" 
+      *ngIf="(isSubmitionInitiated || communityForm.get('name').touched) && communityForm.get('name').invalid">
+      <ion-text color="danger" class="text-sm" *ngIf="communityForm.get('name').errors.required">
+        Title is required field
+      </ion-text>
+    </div>
+
+    <ion-item>
+      <ion-label position="floating">Subtitle</ion-label>
+      <ion-input type="text" placeholder="Slogan"
+        formControlName="subtitle">
+      </ion-input>
+    </ion-item>
+    <div class="ion-text-right ion-padding-start ion-padding-end" 
+      *ngIf="(isSubmitionInitiated || communityForm.get('subtitle').touched) && communityForm.get('subtitle').invalid">
+      <ion-text color="danger" class="text-sm" *ngIf="communityForm.get('subtitle').errors.minlength">
+        Subtitle must be at least {{ communityForm.get('subtitle').errors.minlength.requiredLength }} characters long
+      </ion-text>
+    </div>
+
+    <ion-item>
+      <ion-label position="floating">Details</ion-label>
+      <ion-textarea type="text" placeholder="Explain the motive of this community.."
+        formControlName="details">
+      </ion-textarea>
+    </ion-item>
+    <div class="ion-text-right ion-padding-start ion-padding-end" 
+      *ngIf="(isSubmitionInitiated || communityForm.get('details').touched) && communityForm.get('details').invalid">
+      <ion-text color="danger" class="text-sm" *ngIf="communityForm.get('details').errors.required">
+        Write a short description
+      </ion-text>
+      <ion-text color="danger" class="text-sm" *ngIf="communityForm.get('details').errors.minlength">
+        Write description of at least {{ communityForm.get('details').errors.minlength.requiredLength }} characters long
+      </ion-text>
+    </div>
+
+  </form>
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button size="block" color="primary" (click)="sendRequest()">
+      <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon> Send Request
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

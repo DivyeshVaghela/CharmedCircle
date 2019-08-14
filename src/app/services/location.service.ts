@@ -1,20 +1,25 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
-import { BehaviorSubject, of, Observable, Subscription } from 'rxjs';
 import { Platform } from '@ionic/angular';
-import { Location } from '../models/location.model';
-import { switchMap, throttleTime } from 'rxjs/operators';
-import { NativeGeocoder, NativeGeocoderOptions, NativeGeocoderResult } from '@ionic-native/native-geocoder/ngx';
-import { Area } from '../models/area.model';
-import { AccountService } from './account.service';
-import { AuthService } from './auth.service';
 
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { Storage } from '@ionic/storage';
 
+import { Storage } from '@ionic/storage';
+import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
+import { NativeGeocoder, NativeGeocoderOptions, NativeGeocoderResult } from '@ionic-native/native-geocoder/ngx';
+
+import { BehaviorSubject, of, Observable, Subscription } from 'rxjs';
+import { switchMap, throttleTime, take } from 'rxjs/operators';
 import { resolve } from 'url';
 import { reject } from 'q';
+
+import { AuthService } from './auth.service';
+import { AccountService } from './account.service';
 import { User } from '../models/user.model';
+import { Location } from '../models/location.model';
+import { Area } from '../models/area.model';
+import { CommunityArea } from '../models/community-area.model';
+import { SlugifyPipe } from '../pipes/slugify.pipe';
+
 
 @Injectable({
   providedIn: 'root'
@@ -34,10 +39,13 @@ export class LocationService implements OnDestroy {
     private platform: Platform,
     private geolocation: Geolocation,
     private nativeGeocoder: NativeGeocoder,
+    
+    private storage: Storage,
+    private afStore: AngularFirestore,
+    
     private accountService: AccountService,
     private authService: AuthService,
-    private afStore: AngularFirestore,
-    private storage: Storage) {
+    private slugifyPipe: SlugifyPipe) {
 
     this.platform.ready().then(() => {
 
@@ -89,7 +97,6 @@ export class LocationService implements OnDestroy {
       this.resolveReverseGeocode(position).then((area: Area) => {
         position.area = area;
         this.location$.next(position);
-        console.log('Got new Location');
       }, error => {
         console.log('error in getting area', error);
         this.location$.next(position);
@@ -134,13 +141,13 @@ export class LocationService implements OnDestroy {
           "lastKnownLocation.accuracy": accuracy,
           "lastKnownLocation.timestamp": timestamp
         };
-        console.log('Area not updated');
+        // console.log('Area not updated');
       } else {
         location.area = location.area.toPlainObject();
         data = {
           lastKnownLocation: location
         };
-        console.log('Area updated');
+        // console.log('Area updated');
       }
       return userRef.update(data);
     }
@@ -151,6 +158,30 @@ export class LocationService implements OnDestroy {
       let userInfo: User = await this.storage.get(this.authService.USER_KEY);
       userInfo.lastKnownLocation = location;
       await this.storage.set(this.authService.USER_KEY, userInfo);
+    }
+  }
+
+  getAreaId(area?: {countryCode: string, state: string, city: string}){
+    if (area == null){
+      if (this.location$.value == null) return null;
+
+      area = this.location$.value.area;
+    }
+    const countryCodeSlug = this.slugifyPipe.transform(area.countryCode.toLowerCase());
+    const stateSlug = this.slugifyPipe.transform(area.state.toLowerCase());
+    const citySlug = this.slugifyPipe.transform(area.city.toLowerCase());
+    let areaId = `${countryCodeSlug}-${stateSlug}-${citySlug}`;
+    return areaId;
+  }
+
+  getCommunityArea(areaId: string): Observable<CommunityArea> {
+    const communityAreaDocRef = this.afStore.doc<CommunityArea>(`/communityAreas/${areaId}`);
+    return communityAreaDocRef.valueChanges();
+  }
+
+  getLastLocationFromDevice(){
+    if (this.authService.user$.value != null && this.authService.user$.value.lastKnownLocation != null){
+      this.location$.next(this.authService.user$.value.lastKnownLocation);
     }
   }
 

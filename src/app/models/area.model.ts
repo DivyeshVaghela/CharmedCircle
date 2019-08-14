@@ -1,22 +1,22 @@
 export class Area{
 
-  constructor(
-    public latitude: string,
-    public longitude: string,
+  public latitude?: string;
+  public longitude?: string;
 
-    public timestamp: number,
+  public timestamp?: number;
 
-    public countryCode: string,
-    public countryName: string,
-    public administrativeArea: string,
-    public subAdministrativeArea: string,
-    
-    public postalCode?: string,
-    public subLocality?: string,
-    public thoroughfare?: string,
-    public subThoroughfare?: string,
-    public areasOfInterest?: string[]
-  ){
+  public countryCode: string;
+  public countryName: string;
+  public administrativeArea: string;
+  public subAdministrativeArea: string;
+  
+  public postalCode?: string;
+  public subLocality?: string;
+  public thoroughfare?: string;
+  public subThoroughfare?: string;
+  public areasOfInterest?: string[];
+
+  constructor(){
   }
 
   get state(): string {
@@ -31,8 +31,15 @@ export class Area{
     const { latitude, longitude, countryCode, countryName, administrativeArea, subAdministrativeArea,
       postalCode, subLocality, thoroughfare, subThoroughfare, areasOfInterest
     } = source;
-    const area = new Area(latitude, longitude, timestamp , countryCode, countryName, administrativeArea, subAdministrativeArea,
-      postalCode, subLocality, thoroughfare, subThoroughfare, areasOfInterest);
+    const area = new Area();
+    area.latitude = latitude; area.longitude = longitude;
+    area.timestamp = timestamp;
+    area.countryCode = countryCode; area.countryName = countryName;
+    area.administrativeArea = administrativeArea; area.subAdministrativeArea = subAdministrativeArea;
+    area.postalCode = postalCode;
+    area.subLocality = subLocality;
+    area.thoroughfare = thoroughfare; area.subThoroughfare = subThoroughfare;
+    area.areasOfInterest = areasOfInterest;
     return area;
   }
 

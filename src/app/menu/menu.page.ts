@@ -25,18 +25,23 @@ export class MenuPage implements OnInit {
       {
         label: 'Home',
         icon: 'home',
-        url: '/'
+        url: '/charmed-circle'
+      },
+      {
+        label: 'Communities',
+        icon: 'contacts',
+        url: '/charmed-circle/communities'
       },
       {
         label: 'Settings',
         icon: 'settings',
-        url: '/settings'
+        url: '/charmed-circle/settings'
       }
     ];
   }
 
   ngOnInit() {
-    this.menu.open();
+    // this.menu.open();
 
     this.router.events.subscribe((event: RouterEvent) => {
       if (event && event.url) this.selectedPath = event.url;

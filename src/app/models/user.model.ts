@@ -1,7 +1,7 @@
 import { Location } from './location.model';
 
 export interface User{
-  uid: String;
+  uid: string;
   email: string;
   displayName: string;
   photoURL?: string;
@@ -11,4 +11,12 @@ export interface User{
   lastLogoutTime?: Date;
 
   lastKnownLocation?: Location;
+  joinedCommunities?: JoinedCommunity[];
+}
+
+export interface JoinedCommunity{
+  areaId: string;
+  communityId: string;
+  name: string;
+  timestamp?: number;
 }
