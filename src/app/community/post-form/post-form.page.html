@@ -1,0 +1,66 @@
+<ion-header>
+  <ion-toolbar class="ion-color-dark outline ion-text-center">
+    <ion-buttons slot="start">
+      <ion-button (click)="closeModal()"><ion-icon name="close"></ion-icon></ion-button>
+    </ion-buttons>
+
+    <ion-title>New Post</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-spinner *ngIf="postForm.disabled"></ion-spinner>
+      <ion-button (click)="savePost()" *ngIf="!postForm.disabled"><ion-icon name="checkmark"></ion-icon></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+
+  <form [formGroup]="postForm">
+
+    <ion-item>
+      <ion-label position="floating"></ion-label>
+      <ion-input type="text" placeholder="Title" formControlName="title"></ion-input>
+    </ion-item>
+    <div class="ion-text-right ion-padding-start ion-padding-end" 
+      *ngIf="(isSubmitionInitiated || postForm.get('title').touched) && postForm.get('title').invalid">
+      <ion-text color="danger" class="text-sm" *ngIf="postForm.get('title').errors.required">
+        Title is required field
+      </ion-text>
+    </div>
+  
+    <ion-item>
+      <ion-label position="floating"></ion-label>
+      <ion-input type="text" placeholder="Subtitle" formControlName="subtitle"></ion-input>
+    </ion-item>
+
+    <ion-card *ngIf="selectedPicture.data else noPictureSelected">
+      <ion-img [src]="selectedPicture.data"></ion-img>
+      <ion-item class="ion-text-center" (click)="selectPicture()" clickable="true">
+        <ion-label><ion-icon name="images"></ion-icon> Change</ion-label>
+      </ion-item>
+    </ion-card>
+
+    <ng-template #noPictureSelected>
+      <ion-item lines="full" (click)="selectPicture()" clickable="true">
+        <ion-icon slot="start" name="images"></ion-icon>
+        <ion-label>Select Picture</ion-label>
+      </ion-item>
+    </ng-template>
+  
+    <ion-item>
+      <ion-label position="floating"></ion-label>
+      <ion-textarea placeholder="Create content that reaches your audience's audience.." 
+        formControlName="content" spellcheck="true" rows="7"></ion-textarea>
+    </ion-item>
+    <div class="ion-text-right ion-padding-start ion-padding-end" 
+      *ngIf="(isSubmitionInitiated || postForm.get('content').touched) && postForm.get('content').invalid">
+      <ion-text color="danger" class="text-sm" *ngIf="postForm.get('content').errors.required">
+        Write the post content
+      </ion-text>
+      <ion-text color="danger" class="text-sm" *ngIf="postForm.get('content').errors.minlength">
+        Write content of at least {{ postForm.get('content').errors.minlength.requiredLength }} characters long
+      </ion-text>
+    </div>
+  </form>
+
+</ion-content>

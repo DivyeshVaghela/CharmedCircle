@@ -113,7 +113,6 @@ export class UserProfilePage implements OnInit, OnDestroy {
           return second.timestamp - first.timestamp;
         });
       });
-      console.log(this.joinedCommunities);
     }
   }
 

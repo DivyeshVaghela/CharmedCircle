@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { AngularFirestore, AngularFirestoreDocument, AngularFirestoreCollection, DocumentReference } from '@angular/fire/firestore';
 import { firestore } from 'firebase/app';
+import { FireSQL } from 'firesql';
 
 import { Community } from '../models/community.model';
 import { Observable } from 'rxjs';
@@ -16,12 +17,16 @@ import { LocationService } from './location.service';
 })
 export class CommunityService {
 
+  private fireSQL: FireSQL;
+
   constructor(
     private afStore: AngularFirestore,
     private authService: AuthService,
     private locationService: LocationService,
     private slugifyPipe: SlugifyPipe
-  ) { }
+  ) {
+    this.fireSQL = new FireSQL(this.afStore.firestore);
+  }
 
   create(communityArea: CommunityArea, newCommunity: Community): Promise<void>{
     const uid = this.authService.user$.value.uid;
@@ -34,6 +39,7 @@ export class CommunityService {
     newCommunity.communityId = this.slugifyPipe.transform(newCommunity.name);
     newCommunity.areaId = communityArea.areaId;
     newCommunity.isPending = true;
+    newCommunity.postsCount = 0;
     
     const communityAreaDocRef: DocumentReference = 
       this.afStore.firestore.doc(`/communityAreas/${newCommunity.areaId}`);
@@ -121,10 +127,16 @@ export class CommunityService {
     return communityColRef.valueChanges();
   }
 
-  getCommunityDetails(areaId: string, communityId): Observable<Community>{
+  getCommunityDetails(areaId: string, communityId: string): Observable<Community>{
     const communityDocRef: AngularFirestoreDocument<Community> = 
       this.afStore.doc<Community>(`/communityAreas/${areaId}/communities/${communityId}`);
     return communityDocRef.valueChanges();
+  }
+
+  getCommunityFields(areaId: string, communityId: string, fields: string[]){
+    const fireSQL = new FireSQL(this.afStore.firestore.collection('communityAreas').doc(areaId))
+    let query = `SELECT ${fields.join(',')} FROM communities WHERE communityId='${communityId}'`;
+    return fireSQL.query(query);
   }
   
   canJoinCommunity(community: { areaId: string }, location?: { countryCode: string, state: string, city: string }){

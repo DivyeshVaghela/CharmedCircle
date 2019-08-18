@@ -36,7 +36,11 @@ const routes: Routes = [
       {
         path: 'communities/:areaId/:communityId',
         loadChildren: () => import('../community-details/community-details.module').then(m => m.CommunityDetailsPageModule)
-      }
+      },
+      { 
+        path: 'community/:areaId/:communityId',
+        loadChildren: () => import('../community/community.module').then(m => m.CommunityPageModule)
+      },
     ]
   }
 ];

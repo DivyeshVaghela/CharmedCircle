@@ -118,7 +118,7 @@ export class LocationService implements OnDestroy {
 
   updateLastKnownLocation(location: Location): Promise<void>{
     return Promise.all([
-      this.updateLastKnownLocationInStore(location),
+      // this.updateLastKnownLocationInStore(location),
       this.updateLastKnownLocationInDevice(location)
     ]).then(
       () => { resolve; },
@@ -183,6 +183,10 @@ export class LocationService implements OnDestroy {
     if (this.authService.user$.value != null && this.authService.user$.value.lastKnownLocation != null){
       this.location$.next(this.authService.user$.value.lastKnownLocation);
     }
+  }
+
+  canTakeAction(action: { areaId: string }, location?: { countryCode: string, state: string, city: string }): boolean{
+    return (action.areaId === this.getAreaId());
   }
 
   ngOnDestroy(): void {

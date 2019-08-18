@@ -30,8 +30,12 @@
   font-family: 'Raleway', sans-serif;
 }
 
-.ion-page > *:first-child, ion-menu > *:first-child > *:first-child {
+.ion-page > *:first-child:not(.no-padding-top), ion-menu > *:first-child > *:first-child {
   padding-top: 22px;
+}
+
+ion-textarea[auto-grow=true] > textarea{
+  min-height: 200px;
 }
 
 .active-item {
@@ -60,6 +64,10 @@ ion-header {
   width:0; height: 0;
   background-image: none;
 }
+/* Remove bottom border on ios */
+.header-ios ion-toolbar:last-child {
+  --border-width: 0;
+}
 
 ion-toolbar {
   border-radius: 8px;
@@ -72,6 +80,15 @@ ion-toolbar {
     box-shadow: 0px 0px 5px var(--ion-color-shade);
     color: var(--ion-color-shade);
   }
+}
+
+ion-toolbar.transparent {
+  --background: transparent;
+  --ion-color-base: transparent !important;
+}
+
+.ion-page:has(* > ion-content.margin-top) {
+  margin-top: 22px;
 }
 
 .text-sm {
@@ -94,4 +111,13 @@ ion-chip ion-icon, .align {
 ion-card-title ion-chip{
   vertical-align: bottom;
   margin-top: 0px;
+}
+
+.content-wrap {
+  white-space: pre-wrap;
+}
+
+ion-app {
+  /*animation of native keyboard show*/
+  transition: margin 300ms;
 }

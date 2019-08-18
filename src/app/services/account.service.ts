@@ -14,11 +14,15 @@ import { User } from '../models/user.model';
 })
 export class AccountService {
 
+  private fireSQL: FireSQL;
+
   constructor(
     private afStore: AngularFirestore,
     private storage: Storage,
     private authService: AuthService,
-  ) { }
+  ) {
+    this.fireSQL = new FireSQL(this.afStore.firestore);
+  }
 
   getUserProfile(uid?: string): Observable<User>{
     if (!uid){
@@ -29,6 +33,16 @@ export class AccountService {
     return this.afStore.doc<User>(`/users/${uid}`).valueChanges();
   }
 
+  getUserFields(fields: string[], uid?: string){
+    if (!uid){
+      if (this.authService.user$.value == null) return;
+      uid = this.authService.user$.value.uid;
+    }
+
+    let query = `SELECT ${fields.join(',')} FROM users WHERE uid='${uid}'`;
+    return this.fireSQL.query<User>(query);
+  }
+
   updateUserInDevice(userInfo: User): Promise<void> | void{
     if (this.authService.isAuthenticated()){
       this.storage.set(this.authService.USER_KEY, userInfo);
@@ -36,7 +50,6 @@ export class AccountService {
   }
 
   loadUsers(userIds: string[]): Promise<DocumentData[]>{
-    const fireSQL = new FireSQL(this.afStore.firestore);
     let query = `SELECT uid, displayName, email, photoURL FROM users WHERE uid IN (`;
     userIds.forEach((userId, index) => {
       query += `'${userId}'`;
@@ -44,6 +57,6 @@ export class AccountService {
         query += `,`;
     });
     query += `)`;
-    return fireSQL.query(query);
+    return this.fireSQL.query(query);
   }
 }

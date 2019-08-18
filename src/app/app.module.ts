@@ -9,11 +9,14 @@ import { IonicStorageModule } from '@ionic/storage';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
+import { Camera } from '@ionic-native/camera/ngx';
+import { File } from '@ionic-native/file/ngx';
 
 import { environment } from '../environments/environment';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireAuthModule } from '@angular/fire/auth';
+import { AngularFireStorageModule } from '@angular/fire/storage';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -27,13 +30,17 @@ import { SlugifyPipe } from './pipes/slugify.pipe';
   entryComponents: [],
   imports: [
     BrowserModule, 
-    IonicModule.forRoot(), 
+    IonicModule.forRoot({
+      scrollPadding: true,
+      scrollAssist: true,
+    }), 
     IonicStorageModule.forRoot(),
     AppRoutingModule,
     
     AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireAuthModule,
     AngularFirestoreModule,
-    AngularFireAuthModule
+    AngularFireStorageModule
   ],
   providers: [
     StatusBar,
@@ -43,6 +50,8 @@ import { SlugifyPipe } from './pipes/slugify.pipe';
     GooglePlus,
     Geolocation,
     NativeGeocoder,
+    Camera,
+    File,
 
     SlugifyPipe
   ],

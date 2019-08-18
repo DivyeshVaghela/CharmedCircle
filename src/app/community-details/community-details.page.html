@@ -10,7 +10,7 @@
 
 <ion-content>
 
-  <ng-container *ngIf="community else loading">
+  <ng-container *ngIf="community else communityDetailSkeleton">
     <div class="ion-padding-start ion-padding-end ion-padding-bottom">
       <h2>
         {{ community.name }}
@@ -38,17 +38,17 @@
       </ion-card-content>
     </ion-card>
 
-    <ion-item>
+    <ion-item lines="full" detail="true" routerLink="/charmed-circle/community/{{ community.areaId }}/{{ community.communityId }}/post-list" routerDirection="forward">
       <ion-label>Posts</ion-label>
-      <p>{{ community.postsCount ? community.postsCount.length : 0 }}</p>
+      <p>{{ community.postsCount ? community.postsCount : 0 }}</p>
     </ion-item>
-    <ion-item>
+    <ion-item lines="full" detail="true" routerLink="/charmed-circle/community/{{ community.areaId }}/{{ community.communityId }}/question-list" routerDirection="forward">
       <ion-label>Questions</ion-label>
-      <p>{{ community.questionCount ? community.questionCount.length : 0 }}</p>
+      <p>{{ community.questionsCount ? community.questionsCount : 0 }}</p>
     </ion-item>
-    <ion-item>
+    <ion-item lines="full" detail="true" routerLink="/charmed-circle/community/{{ community.areaId }}/{{ community.communityId }}/discussion-list" routerDirection="forward">
       <ion-label>Discussions</ion-label>
-      <p>{{ community.discussionCount ? community.discussionCount.length : 0 }}</p>
+      <p>{{ community.discussionsCount ? community.discussionsCount : 0 }}</p>
     </ion-item>
 
     <ion-list>
@@ -92,9 +92,39 @@
     </ng-template>
   </ng-container>
 
-  <ng-template #loading>
-    <div class="ion-text-center">
-      <h4>Loading..</h4>
+  <ng-template #communityDetailSkeleton>
+    <div class="ion-padding-start ion-padding-end ion-padding-bottom">
+      <h2>
+        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="80%"></ion-skeleton-text>
+      </h2>
+
+      <p *ngIf="communityArea">
+        <ion-icon size="small"></ion-icon> 
+        <ion-skeleton-text animated width="20%"></ion-skeleton-text>, <ion-skeleton-text animated width="20%"></ion-skeleton-text>, <ion-skeleton-text animated width="20%"></ion-skeleton-text>
+      </p>
+  
+      <p>
+        <ion-skeleton-text animated width="100%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="100%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="100%"></ion-skeleton-text>
+      </p>
+      <p>
+        <ion-skeleton-text animated width="100%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="100%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="100%"></ion-skeleton-text>
+      </p>
+      <br>
+
+      <ion-item lines="full">
+        <ion-label><ion-skeleton-text animated width="50%"></ion-skeleton-text></ion-label>
+      </ion-item>
+      <ion-item lines="full">
+        <ion-label><ion-skeleton-text animated width="50%"></ion-skeleton-text></ion-label>
+      </ion-item>
+      <ion-item lines="full">
+        <ion-label><ion-skeleton-text animated width="50%"></ion-skeleton-text></ion-label>
+      </ion-item>
     </div>
   </ng-template>
 

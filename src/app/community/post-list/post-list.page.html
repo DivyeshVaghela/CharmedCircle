@@ -1,0 +1,107 @@
+<ion-header class="ion-no-margin">
+  <ion-toolbar class="ion-color-dark outline">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/charmed-circle/communities"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Posts</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  
+  <ion-refresher slot="fixed" (ionRefresh)="loadLatestPosts($event)">
+    <ion-refresher-content 
+      pullingIcon="ios-arrow-down"
+      pullingText="Pull to get latest posts"
+      refreshingSpinner="crescent"
+      refreshing="Getting latest posts..">
+    </ion-refresher-content>
+  </ion-refresher>
+
+  <ng-container *ngIf="initialLoadFinised else skeleton">  
+    <ion-card *ngFor="let post of posts">
+      <ion-item *ngIf="post.user as user else userInfoSkeleton" lines="full" detail="true" routerLink="/charmed-circle/user-profile/{{ user.uid }}">
+        <ion-avatar slot="start"><ion-img [src]="user.photoURL"></ion-img></ion-avatar>
+        <ion-label>
+          {{ user.displayName }}
+          <p>{{ post.timestamp | date:'medium' }}</p>
+        </ion-label>
+      </ion-item>
+      <ng-template #userInfoSkeleton>
+        <ion-item lines="full">
+          <ion-avatar slot="start"><ion-skeleton-text animated></ion-skeleton-text></ion-avatar>
+          <ion-label>
+            <ion-skeleton-text animated width="60%"></ion-skeleton-text>
+            <p><ion-skeleton-text animated width="40%"></ion-skeleton-text></p>
+          </ion-label>
+        </ion-item>
+      </ng-template>
+
+      <ion-img *ngIf="post.imageUrls && post.imageUrls.length > 0"
+        [src]="post.imageUrls[0]">
+      </ion-img>
+      <ion-card-header>
+        <ion-card-title>{{ post.title }}</ion-card-title>
+        <ion-card-subtitle *ngIf="post.subtitle">{{ post.subtitle }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content class="content-wrap">
+        {{ post.content.substr(0, 50) }}.. 
+        <a class="no-decoration" routerLink="/charmed-circle/community/{{ post.areaId }}/{{ post.communityId }}/post-list/{{ post.postId }}" routerDirection="forward">More</a>
+      </ion-card-content>
+      <ion-button fill="clear" [color]="postService.alreadyThumbsUp(post) ? 'medium' : 'primary'" (click)="thumbsUp(post)">
+        <ion-icon name="thumbs-up" slot="start"></ion-icon>
+        {{ post.thumbsUpCount == 0 ? 'Like' : post.thumbsUpCount }}
+      </ion-button>
+    </ion-card>
+
+    <ng-container *ngIf="posts == null || posts.length == 0">
+      <div class="ion-text-center ion-padding">
+        <img src="assets/images/no-content.png" class="no-content-placeholder" alt="No Content">
+        <br>
+        No posts in this community,<br><br>
+        
+        <ion-button color="primary" fill="outline" (click)="openNewPostForm()">
+          <ion-icon slot="start" name="add"></ion-icon>
+          Create new Post
+        </ion-button>
+      </div>
+    </ng-container>
+  
+  </ng-container>
+
+  <ng-template #skeleton>
+    <ion-card *ngFor="let i of [1,2,3,4,5]">
+      <ion-item lines="full">
+        <ion-avatar slot="start"><ion-skeleton-text animated></ion-skeleton-text></ion-avatar>
+        <ion-label>
+          <ion-skeleton-text animated width="60%"></ion-skeleton-text>
+          <p><ion-skeleton-text animated width="40%"></ion-skeleton-text></p>
+        </ion-label>
+      </ion-item>
+      <ion-card-header>
+        <ion-card-title><ion-skeleton-text animated width="40%"></ion-skeleton-text></ion-card-title>
+        <ion-card-subtitle><ion-skeleton-text animated width="70%"></ion-skeleton-text></ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p>
+          <ion-skeleton-text animated width="100%"></ion-skeleton-text>
+        </p>
+        <p>
+          <ion-skeleton-text animated width="100%"></ion-skeleton-text>
+        </p>
+      </ion-card-content>
+    </ion-card>
+  </ng-template>
+
+  <ion-infinite-scroll (ionInfinite)="loadNextPage($event)">
+    <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Loading more posts.."></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" (click)="openNewPostForm()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>

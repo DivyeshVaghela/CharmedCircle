@@ -13,4 +13,6 @@ export interface Community{
   isPending?: boolean;
   members?: string[];
   membersCount?: number;
+
+  postsCount?: number;
 }

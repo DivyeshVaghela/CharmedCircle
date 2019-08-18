@@ -16,3 +16,5 @@ This is a mobile application for Local Communities
 - Google Plus
 - GeoLocation
 - Native GeoCoder
+- Camera
+- File

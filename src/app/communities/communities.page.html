@@ -17,15 +17,16 @@
   </ion-card>
 
   <ion-card *ngFor="let community of communities">
-    <ion-card-header>
-      <ion-card-title>
-        {{ community.name }}
+    <ion-item lines="full" detail="true" routerDirection="forward"
+      routerLink="/charmed-circle/community/{{ community.areaId }}/{{ community.communityId }}">
+      <ion-label text-wrap>
+        <strong>{{ community.name }}</strong>
         <ion-chip color="tertiary" outline="true" *ngIf="community.isPending">
           <ion-label><h6><ion-icon name="contrast"></ion-icon> Pending</h6></ion-label>
         </ion-chip>
-      </ion-card-title>
-      <ion-card-subtitle>{{ community.subtitle }}</ion-card-subtitle>
-    </ion-card-header>
+        <h3 *ngIf="community.subtitle">{{ community.subtitle }}</h3>
+      </ion-label>
+    </ion-item>
     <ion-card-content>
       {{ community.details }}
       <a class="no-decoration" routerLink="{{community.areaId}}/{{community.communityId}}">More..</a>
