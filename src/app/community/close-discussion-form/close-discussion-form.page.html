@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar class="ion-color-dark outline ion-text-center">
+    <ion-buttons slot="start">
+      <ion-button (click)="closeModal()" *ngIf="!closeDiscussionForm.disabled"><ion-icon name="close"></ion-icon></ion-button>
+      <ion-button *ngIf="closeDiscussionForm.disabled"><ion-spinner></ion-spinner></ion-button>
+    </ion-buttons>
+
+    <ion-title>Close discussion</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="closeDiscussion()"><ion-icon name="checkmark"></ion-icon></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <form [formGroup]="closeDiscussionForm">
+
+    <ion-item>
+      <ion-checkbox slot="start" formControlName="aimAchieved"></ion-checkbox>
+      <ion-label>Are you satisfied with this discussion?  <p>Is the aim achieved?</p></ion-label>
+    </ion-item>
+
+    <ion-item class="ion-margin-start ion-margin-end">
+      <ion-label position="floating"></ion-label>
+      <ion-textarea placeholder="Write something about your expirence in this discussion, you can also acknowledge participants.." 
+        formControlName="acknowledgement" rows="7"></ion-textarea>
+    </ion-item>
+    <div class="ion-text-right ion-padding-start ion-padding-end" 
+      *ngIf="(isSubmitionInitiated || closeDiscussionForm.get('acknowledgement').touched) && closeDiscussionForm.get('acknowledgement').invalid">
+      <ion-text color="danger" class="text-sm" *ngIf="closeDiscussionForm.get('acknowledgement').errors.required">
+        Write your expirence in this discussion
+      </ion-text>
+      <ion-text color="danger" class="text-sm" *ngIf="closeDiscussionForm.get('acknowledgement').errors.minlength">
+        Write content of at least {{ closeDiscussionForm.get('acknowledgement').errors.minlength.requiredLength }} characters long
+      </ion-text>
+    </div>
+
+    <ion-item class="ion-margin-top">
+      <ion-checkbox slot="start" formControlName="confirmation" style="align-self: flex-start;"></ion-checkbox>
+      <ion-text>
+        Are you sure want to close this (<strong><i>{{ topic }}</i></strong>) discussion?
+        <p>Once the it's is closed, no one will be able to interact in this discussion.</p>
+      </ion-text>
+    </ion-item>
+    <div class="ion-text-right ion-padding-start ion-padding-end"
+      *ngIf="(isSubmitionInitiated || closeDiscussionForm.get('confirmation').touched) && closeDiscussionForm.get('confirmation').invalid">
+      <ion-text color="danger" class="text-sm" *ngIf="closeDiscussionForm.get('confirmation').errors.required">
+        Please read and check this to close this discussion
+      </ion-text>
+    </div>
+  </form>
+
+</ion-content>

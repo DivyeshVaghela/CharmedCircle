@@ -5,13 +5,13 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
 
-import { DiscussionListPage } from './discussion-list.page';
-import { DiscussionFormPage } from '../discussion-form/discussion-form.page';
+import { DiscussionDetailsPage } from './discussion-details.page';
+import { CloseDiscussionFormPage } from '../close-discussion-form/close-discussion-form.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: DiscussionListPage
+    component: DiscussionDetailsPage
   }
 ];
 
@@ -24,11 +24,11 @@ const routes: Routes = [
     RouterModule.forChild(routes)
   ],
   declarations: [
-    DiscussionListPage,
-    DiscussionFormPage
+    DiscussionDetailsPage,
+    CloseDiscussionFormPage
   ],
-  entryComponents: [ 
-    DiscussionFormPage
+  entryComponents: [
+    CloseDiscussionFormPage
   ]
 })
-export class DiscussionListPageModule {}
+export class DiscussionDetailsPageModule {}

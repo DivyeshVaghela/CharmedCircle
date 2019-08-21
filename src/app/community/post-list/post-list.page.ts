@@ -11,6 +11,8 @@ import { AccountService } from '../../services/account.service';
 import { AuthService } from '../../services/auth.service';
 import { LocationService } from '../../services/location.service';
 import { Post } from '../../models/post.model';
+import { CommunityService } from 'src/app/services/community.service';
+import { Community } from 'src/app/models/community.model';
 
 @Component({
   selector: 'app-post-list',
@@ -21,6 +23,8 @@ export class PostListPage implements OnInit {
 
   areaId: string;
   communityId: string;
+  communityDetails: Community;
+
   initialLoadFinised = false;
 
   constructor(
@@ -29,10 +33,11 @@ export class PostListPage implements OnInit {
     private modalCtrl: ModalController,
     private alertCtrl: AlertController,
 
-    private postService: PostService,
-    private accountService: AccountService,
     private authService: AuthService,
-    private locationService: LocationService
+    private accountService: AccountService,
+    private locationService: LocationService,
+    private postService: PostService,
+    private communityService: CommunityService
   ) {
     const urlParts = this.router.url.split('/')
     this.areaId = urlParts[3];
@@ -40,7 +45,13 @@ export class PostListPage implements OnInit {
   }
 
   ngOnInit() {
+    this.loadCommunityDetails();
     this.loadPosts();
+  }
+
+  async loadCommunityDetails(){
+    const communities = await this.communityService.getCommunityFields(this.areaId, this.communityId, ['name']);
+    this.communityDetails = communities[0];
   }
 
   posts: Post[] = [];
@@ -132,8 +143,11 @@ export class PostListPage implements OnInit {
     });
     await newPostFormModal.present();
     newPostFormModal.onDidDismiss().then(returnValue => {
-      if (returnValue.data.refreshContent)
+      if (returnValue.data.refreshContent){
+        this.posts = [];
+        this.queryConfig.after = null;
         this.loadPosts();
+      }
     })
   }
 }

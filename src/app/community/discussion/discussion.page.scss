@@ -1,0 +1,48 @@
+#chat-content{
+  display: flex;
+  flex-direction: column-reverse;
+  height: 100%;
+}
+
+#messages-box{
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+}
+
+.card-message{
+  width: fit-content;
+  max-width: 80%;
+  // display: flex;
+  white-space: pre-wrap;
+}
+
+.card-message.my{
+  align-items: flex-end;
+  text-align: right;
+  align-self: flex-end;
+}
+.card-message:not(.my){
+  align-self: flex-start;
+}
+
+.card-message ion-avatar.profile-pic {
+  height: 30px;
+  width: 30px;
+  margin: 10px 5px 0 3px;
+  float: left;
+}
+
+.time-text {
+  font-family: sans-serif;
+  margin-bottom:0px; margin-top:23px;
+  margin-right: 10px;
+  font-size: small;
+  white-space: nowrap;
+}
+.card-message.my .time-text{
+  float: right; 
+}
+.card-message:not(.my){
+  float: left;
+}

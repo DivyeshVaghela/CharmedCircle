@@ -2,7 +2,7 @@
   <ion-toolbar class="ion-no-margin ion-margin-bottom ion-color-dark"
     [class.transparent]="isThereImageContent() && makeTransparent" >
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-back-button defaultHref="/charmed-circle/community/{{ areaId }}/{{ communityId }}/post-list"></ion-back-button>
     </ion-buttons>
     <ion-title *ngIf="post && (!isThereImageContent()) || (isThereImageContent() && !makeTransparent)">{{ post.title }}</ion-title>
   </ion-toolbar>
@@ -12,7 +12,7 @@
 
   <ion-img *ngIf="isThereImageContent()" [src]="post.imageUrls[0]" #postImg></ion-img>
 
-  <div *ngIf="post else postSkeleton">
+  <ng-container *ngIf="post else postSkeleton">
     <div class="ion-padding-start ion-padding-end ion-padding-bottom">
       <h2>{{ post.title }}</h2>
       <ion-text color="medium" *ngIf="post.subtitle"><h4>{{ post.subtitle }}</h4></ion-text>
@@ -21,7 +21,7 @@
         {{ post.content }}
       </p>
 
-      <ion-button fill="clear" [color]="postService.alreadyThumbsUp(post) ? 'primary' : 'medium'" (click)="thumbsUp(post)">
+      <ion-button fill="clear" [color]="postService.alreadyThumbsUp(post) ? 'medium' : 'primary'" (click)="thumbsUp(post)">
         <ion-icon name="thumbs-up" slot="start"></ion-icon>
         {{ post.thumbsUpCount == 0 ? 'Like' : post.thumbsUpCount }}
       </ion-button>
@@ -66,7 +66,7 @@
         </ion-item>
       </ng-template>
     </ion-card>
-  </div>
+  </ng-container>
 
   <ng-template #postSkeleton>
     <div class="ion-padding-start ion-padding-end ion-padding-bottom">
@@ -100,11 +100,11 @@
         </ion-item>
   
         <ion-item lines=full>
-          <ion-icon slot="start"><ion-skeleton-text animated></ion-skeleton-text></ion-icon>
+          <ion-icon slot="start"></ion-icon>
           <ion-label><ion-skeleton-text animated width="40%"></ion-skeleton-text> <p><ion-skeleton-text animated width="80%"></ion-skeleton-text></p></ion-label>
         </ion-item>
         <ion-item lines=full>
-          <ion-icon slot="start"><ion-skeleton-text animated></ion-skeleton-text></ion-icon>
+          <ion-icon slot="start"></ion-icon>
           <ion-label><ion-skeleton-text animated width="40%"></ion-skeleton-text> <p><ion-skeleton-text animated width="80%"></ion-skeleton-text></p></ion-label>
         </ion-item>
       </ion-card>

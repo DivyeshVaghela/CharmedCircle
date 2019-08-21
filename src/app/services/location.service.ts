@@ -96,7 +96,11 @@ export class LocationService implements OnDestroy {
     ).subscribe((position: Location) => {
       this.resolveReverseGeocode(position).then((area: Area) => {
         position.area = area;
-        this.location$.next(position);
+
+        if (area.countryName && area.countryName !== '' && area.administrativeArea && area.administrativeArea.trim() !== '' &&
+          area.subAdministrativeArea && area.subAdministrativeArea !== ''){
+          this.location$.next(position);
+        }
       }, error => {
         console.log('error in getting area', error);
         this.location$.next(position);

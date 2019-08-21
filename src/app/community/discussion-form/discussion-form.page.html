@@ -1,0 +1,45 @@
+<ion-header>
+  <ion-toolbar class="ion-color-dark outline ion-text-center">
+    <ion-buttons slot="start">
+      <ion-button (click)="closeModal()"><ion-icon name="close"></ion-icon></ion-button>
+    </ion-buttons>
+
+    <ion-title>Start New Discussion</ion-title>
+    
+    <ion-buttons slot="end">
+      <ion-button (click)="createDiscussion()" *ngIf="!discussionForm.disabled"><ion-icon name="checkmark"></ion-icon></ion-button>
+      <ion-spinner *ngIf="discussionForm.disabled"></ion-spinner>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+
+  <form [formGroup]="discussionForm">
+
+    <ion-item>
+      <ion-input type="text" placeholder="Topic" formControlName="topic"></ion-input>
+    </ion-item>
+    <div class="ion-text-right ion-padding-start ion-padding-end" 
+      *ngIf="(isSubmitionInitiated || discussionForm.get('topic').touched) && discussionForm.get('topic').invalid">
+      <ion-text color="danger" class="text-sm" *ngIf="discussionForm.get('topic').errors.required">
+        Topic is required field
+      </ion-text>
+    </div>
+
+    <ion-item>
+      <ion-textarea placeholder="Explain the purpose of this discussion.." rows="5" spellcheck="true" formControlName="details"></ion-textarea>
+    </ion-item>
+    <div class="ion-text-right ion-padding-start ion-padding-end" 
+      *ngIf="(isSubmitionInitiated || discussionForm.get('details').touched) && discussionForm.get('details').invalid">
+      <ion-text color="danger" class="text-sm" *ngIf="discussionForm.get('details').errors.required">
+        Write the post content
+      </ion-text>
+      <ion-text color="danger" class="text-sm" *ngIf="discussionForm.get('details').errors.minlength">
+        Write details of at least {{ discussionForm.get('details').errors.minlength.requiredLength }} characters long
+      </ion-text>
+    </div>
+
+  </form>
+
+</ion-content>

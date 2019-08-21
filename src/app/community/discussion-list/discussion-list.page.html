@@ -1,12 +1,165 @@
-<ion-header>
+<ion-header class="ion-no-margin">
   <ion-toolbar class="ion-color-dark outline">
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-back-button defaultHref="/charmed-circle/communities"></ion-back-button>
     </ion-buttons>
-    <ion-title>Discussions</ion-title>
+
+    <ion-title class="ion-activatable" routerLink="/charmed-circle/communities/{{ areaId }}/{{ communityId }}">
+      <ion-ripple-effect type="unbounded"></ion-ripple-effect>
+      <ng-container *ngIf="communityDetails else titleSkeleton">{{ communityDetails.name }}</ng-container>
+      <ng-template #titleSkeleton><ion-skeleton-text animated width="50%"></ion-skeleton-text></ng-template>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content padding>
-  <p>Discussions</p>
+<ion-content>
+  
+  <ng-container *ngIf="initialLoadFinised else skeleton">
+    <ion-card *ngFor="let discussion of discussions" class="discussion-card">
+      <ion-card-header>
+        <ion-card-title>
+          {{ discussion.topic }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content class="content-wrap">
+        {{ discussion.details.substr(0, 100) }}..
+        <a class="no-decoration"
+          routerLink="/charmed-circle/community/{{ discussion.areaId }}/{{ discussion.communityId }}/discussion-list/{{ discussion.discussionId }}/details">
+          More
+        </a>
+      </ion-card-content>
+  
+      <ion-grid>
+        <ion-row class="ion-text-center">
+          <ion-col>
+            <ion-chip [color]="discussion.isActive ? 'success' : 'danger'">
+              <ion-label><ion-icon name="radio-button-on"></ion-icon> {{ discussion.isActive ? 'Active' : 'Closed' }}</ion-label>
+            </ion-chip>
+          </ion-col>
+          <ion-col>
+            <ion-button color="primary" fill="clear" 
+              routerLink="/charmed-circle/community/{{ discussion.areaId }}/{{ discussion.communityId }}/discussion-list/{{ discussion.discussionId }}" 
+              routerDirection="forward">
+              {{ discussion.isActive ? 'Jump into discussion' : 'View discussion' }} 
+              <ion-icon slot="end" name="ios-arrow-forward"></ion-icon>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+  
+      <ion-item *ngIf="discussion.user as user else userInfoSkeleton" lines="full" detail="true"
+        routerLink="/charmed-circle/user-profile/{{ user.uid }}">
+        <ion-avatar slot="start">
+          <ion-img [src]="user.photoURL"></ion-img>
+        </ion-avatar>
+        <ion-label>
+          {{ user.displayName }}
+          <p>{{ user.email }}</p>
+        </ion-label>
+      </ion-item>
+      <ng-template #userInfoSkeleton>
+        <ion-item lines="full">
+          <ion-avatar slot="start">
+            <ion-skeleton-text animated></ion-skeleton-text>
+          </ion-avatar>
+          <ion-label>
+            <ion-skeleton-text animated width="60%"></ion-skeleton-text>
+            <p>
+              <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+            </p>
+          </ion-label>
+        </ion-item>
+      </ng-template>
+
+      <ion-item lines="full">
+        <ion-icon slot="start" name="time"></ion-icon>
+        <ion-label>
+          {{ discussion.startTimestamp | date:'medium' }}
+          <p>Started</p>
+        </ion-label>
+      </ion-item>
+
+      <ng-container *ngIf="!discussion.isActive">
+        <ion-item lines="full">
+          <ion-icon slot="start" name="timer"></ion-icon>
+          <ion-label>
+            {{ discussion.closeTimestamp | date:'medium' }}
+            <p>Closed</p>
+          </ion-label>
+        </ion-item>
+
+        <ion-item lines="full">
+          <ion-icon slot="start" [name]="discussion.aimAchieved ? 'star' : 'star-half'" [color]="discussion.aimAchieved ? 'success' : 'danger'"></ion-icon>
+          <ion-label>
+            {{ discussion.aimAchieved ? "Discussion was successful" : "Discussion wasn't successful" }}
+          </ion-label>
+        </ion-item>
+
+        <ion-item lines="full">
+          <ion-text class="content-wrap">
+            <strong>Closer feedback: </strong>
+            {{ discussion.acknowledgement }}
+          </ion-text>
+        </ion-item>
+      </ng-container>
+    </ion-card>
+
+    <div class="screen-centered-content" *ngIf="discussions.length == 0">
+      <div>
+        <img src="assets/images/discussion-table.png" alt="Discussion Table" class="no-content-placeholder">
+        <br>
+        No discussions started in this community,<br><br>
+        
+        <ion-button color="primary" fill="outline" (click)="openNewDiscussionForm()">
+          <ion-icon slot="start" name="add"></ion-icon>
+          Start a new Discussion Now
+        </ion-button>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <ng-template #skeleton>
+    <ion-card *ngFor="let i of [1,2,3]">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content class="content-wrap">
+        <p>
+          <ion-skeleton-text animated width="100%"></ion-skeleton-text>
+          <ion-skeleton-text animated width="90%"></ion-skeleton-text>
+        </p>
+      </ion-card-content>
+  
+      <ion-button color="primary" fill="clear" routerLink="/charmed-circle/communities" routerDirection="backward">
+        <ion-skeleton-text animated width="50%"></ion-skeleton-text>        
+      </ion-button>
+  
+      <ion-item lines=full>
+        <ion-icon slot="start"></ion-icon>
+        <ion-label><ion-skeleton-text animated width="40%"></ion-skeleton-text> <p><ion-skeleton-text animated width="80%"></ion-skeleton-text></p></ion-label>
+      </ion-item>
+      <ion-item lines="full">
+        <ion-avatar slot="start"><ion-skeleton-text animated></ion-skeleton-text></ion-avatar>
+        <ion-label>
+          <ion-skeleton-text animated width="60%"></ion-skeleton-text>
+          <p><ion-skeleton-text animated width="40%"></ion-skeleton-text></p>
+        </ion-label>
+      </ion-item>
+  
+    </ion-card>
+  </ng-template>
+
+  <ion-infinite-scroll (ionInfinite)="loadNextPage($event)">
+    <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Loading more discussions.."></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
+  <ion-fab horizontal="end" vertical="bottom" slot="fixed">
+    <ion-fab-button color="primary" (click)="openNewDiscussionForm()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

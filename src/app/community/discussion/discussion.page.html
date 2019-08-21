@@ -1,0 +1,122 @@
+<ion-header class="ion-no-margin">
+  <ion-toolbar class="ion-no-margin ion-margin-bottom ion-color-dark">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/charmed-circle/community/{{ areaId }}/{{ communityId }}/discussion-list">
+      </ion-back-button>
+    </ion-buttons>
+    
+    <ion-title class="ion-activatable" *ngIf="discussion" 
+      routerLink="/charmed-circle/community/{{ areaId }}/{{ communityId }}/discussion-list/{{ discussionId }}/details">
+      <ion-ripple-effect type="unbounded"></ion-ripple-effect>
+      {{ discussion.topic }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <div id="chat-content">
+    <div id="messages-box" #messageBox [scrollTop]="messageBox.scrollHeight">
+
+      <ng-container *ngIf="conversation && conversation.length > 0 else skeleton">
+        <div *ngFor="let msg of conversation" class="card-message" [class.my]="msg.uid === currentUid">
+          <div style="display:flex; flex-direction:column">
+            <div>
+              <ng-container *ngIf="msg.uid !== currentUid">
+                <ion-avatar 
+                  *ngIf="msg.user as user else userSkeleton" class="profile-pic ion-activatable" 
+                  routerLink="/charmed-circle/user-profile/{{ user.uid }}">
+                  <ion-ripple-effect type="unbouded"></ion-ripple-effect>
+                  <ion-img [src]="user.photoURL"></ion-img>
+                </ion-avatar>
+                <ng-template #userSkeleton>
+                  <ion-avatar class="profile-pic">
+                    <ion-skeleton-text animated></ion-skeleton-text>
+                  </ion-avatar>
+                </ng-template>
+              </ng-container>
+              <p class="time-text">
+                <ion-text color="medium">
+                  {{ msg.timestamp | date:'short' }}
+                </ion-text>
+              </p>
+            </div>
+            <ion-card [color]="msg.uid === currentUid ? 'light' : 'primary'" style="float: right;">
+              <ion-card-content>
+                {{ msg.message }}
+              </ion-card-content>
+            </ion-card>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #skeleton>
+        <div class="card-message" style="width:80%">
+          <ion-card>
+            <ion-card-content>
+              <p>
+                <ion-skeleton-text animated width="100%"></ion-skeleton-text>
+                <ion-skeleton-text animated width="80%"></ion-skeleton-text>
+              </p>
+              <ion-skeleton-text animated width="50%"></ion-skeleton-text>
+            </ion-card-content>
+          </ion-card>
+        </div>
+
+        <div class="card-message my" style="width:80%">
+          <div style="display:flex; flex-direction:column">
+            <ion-card>
+              <ion-card-content>
+                <p>
+                  <ion-skeleton-text animated width="80%"></ion-skeleton-text>
+                </p>
+                <ion-skeleton-text animated width="50%"></ion-skeleton-text>
+              </ion-card-content>
+            </ion-card>
+          </div>
+        </div>
+
+        <div class="card-message my" style="width:80%">
+          <div style="display:flex; flex-direction:column">
+            <ion-card>
+              <ion-card-content>
+                <ion-skeleton-text animated width="50%"></ion-skeleton-text>
+              </ion-card-content>
+            </ion-card>
+          </div>
+        </div>
+
+        <div class="card-message" style="width:80%">
+          <div style="display:flex; flex-direction:column">
+            <ion-card>
+              <ion-card-content>
+                <p>
+                  <ion-skeleton-text animated width="100%"></ion-skeleton-text>
+                </p>
+                <ion-skeleton-text animated width="50%"></ion-skeleton-text>
+              </ion-card-content>
+            </ion-card>
+          </div>
+        </div>
+      </ng-template>
+
+    </div>
+  </div>
+
+</ion-content>
+
+<ion-footer *ngIf="discussion">
+  <ion-toolbar>
+    <ng-container *ngIf="discussion.isActive">
+      <ion-textarea autosize placeholder="Type a message.." maxRows="5" [(ngModel)]="userMessage" [disabled]="isSending">
+      </ion-textarea>
+      <ion-button slot="end" size="small" color="primary" fill="clear" [disabled]="this.userMessage.trim() === ''" (click)="send()">
+        <ion-icon name="send"></ion-icon>
+      </ion-button>
+    </ng-container>
+    <ion-item color="tertiary" *ngIf="!discussion.isActive">
+      <ion-icon name="alert" slot="start"></ion-icon>
+      <ion-label>This discussion is closed.</ion-label>
+    </ion-item>
+  </ion-toolbar>
+</ion-footer>

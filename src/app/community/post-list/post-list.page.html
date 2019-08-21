@@ -4,7 +4,11 @@
       <ion-back-button defaultHref="/charmed-circle/communities"></ion-back-button>
     </ion-buttons>
 
-    <ion-title>Posts</ion-title>
+    <ion-title class="ion-activatable" routerLink="/charmed-circle/communities/{{ areaId }}/{{ communityId }}">
+      <ion-ripple-effect type="unbounded"></ion-ripple-effect>
+      <ng-container *ngIf="communityDetails else titleSkeleton">{{ communityDetails.name }}</ng-container>
+      <ng-template #titleSkeleton><ion-skeleton-text animated width="50%"></ion-skeleton-text></ng-template>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -56,15 +60,17 @@
     </ion-card>
 
     <ng-container *ngIf="posts == null || posts.length == 0">
-      <div class="ion-text-center ion-padding">
-        <img src="assets/images/no-content.png" class="no-content-placeholder" alt="No Content">
-        <br>
-        No posts in this community,<br><br>
-        
-        <ion-button color="primary" fill="outline" (click)="openNewPostForm()">
-          <ion-icon slot="start" name="add"></ion-icon>
-          Create new Post
-        </ion-button>
+      <div class="screen-centered-content">
+        <div>
+          <img src="assets/images/no-content.png" class="no-content-placeholder" alt="No Content">
+          <br>
+          No posts in this community,<br><br>
+          
+          <ion-button color="primary" fill="outline" (click)="openNewPostForm()">
+            <ion-icon slot="start" name="add"></ion-icon>
+            Create new Post
+          </ion-button>
+        </div>
       </div>
     </ng-container>
   

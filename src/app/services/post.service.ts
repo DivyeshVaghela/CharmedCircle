@@ -38,14 +38,14 @@ export class PostService {
       `/communityAreas/${areaId}/communities/${communityId}/posts`, 
       ref => {
         if (!queryConfig)
-          queryConfig = { field: 'timestamp', limit: 2 };
+          queryConfig = { field: 'timestamp', limit: 20 };
         
         if (!queryConfig.hasOwnProperty('reverse')) queryConfig.reverse = true;
         if (!queryConfig.after) queryConfig.after = queryConfig.field;
 
         return ref.orderBy(queryConfig.field, queryConfig.reverse ? 'desc' : 'asc')
-                  .limit(queryConfig.limit)
-                  .startAfter(queryConfig.after);
+                  .startAfter(queryConfig.after)
+                  .limit(queryConfig.limit);
       }
     );
     return postsColRef.valueChanges({ idField: 'postId' });
@@ -66,7 +66,6 @@ export class PostService {
     return new Promise((resolve, reject) => {
       if (asset){
         const refString = `/${newPost.areaId}/${newPost.communityId}/${this.createAssetName(newPost)}.${asset.name.substring(asset.name.indexOf('.') + 1)}`;
-        console.log('Asset storage ref string', refString);
         const assetRef = this.afStorage.ref(refString);
         const uploadTask = assetRef.put(asset.blob);
         const subscription = uploadTask.snapshotChanges()
@@ -114,13 +113,11 @@ export class PostService {
   async canThumbsUp(post: Post): Promise<{result: boolean, reason?: string}>{
     if (!this.authService.isAuthenticated()) return {result:false, reason:'Not authenticated'};
 
-    const uid = this.authService.user$.value.uid;
-
     if (!this.locationService.canTakeAction({areaId: post.areaId})){
       return {result:false, reason:'Location not matched'};
     }
 
-    if (this.alreadyThumbsUp(post)){
+    if (!this.alreadyThumbsUp(post)){
       return {result: true}
     } else {
       return {result:false, reason:'Already thumbsUp'};

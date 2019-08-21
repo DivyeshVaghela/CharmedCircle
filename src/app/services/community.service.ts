@@ -136,7 +136,7 @@ export class CommunityService {
   getCommunityFields(areaId: string, communityId: string, fields: string[]){
     const fireSQL = new FireSQL(this.afStore.firestore.collection('communityAreas').doc(areaId))
     let query = `SELECT ${fields.join(',')} FROM communities WHERE communityId='${communityId}'`;
-    return fireSQL.query(query);
+    return fireSQL.query<Community>(query);
   }
   
   canJoinCommunity(community: { areaId: string }, location?: { countryCode: string, state: string, city: string }){

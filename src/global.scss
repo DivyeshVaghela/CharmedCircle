@@ -27,7 +27,7 @@
 
 * {
   //font-family: 'Comfortaa', cursive;
-  font-family: 'Raleway', sans-serif;
+  --ion-font-family: 'Raleway', sans-serif;
 }
 
 .ion-page > *:first-child:not(.no-padding-top), ion-menu > *:first-child > *:first-child {
@@ -109,7 +109,7 @@ ion-chip ion-icon, .align {
 }
 
 ion-card-title ion-chip{
-  vertical-align: bottom;
+  // vertical-align: bottom;
   margin-top: 0px;
 }
 
@@ -120,4 +120,38 @@ ion-card-title ion-chip{
 ion-app {
   /*animation of native keyboard show*/
   transition: margin 300ms;
+}
+
+.screen-centered-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  padding: var(--ion-padding, 16px);
+}
+
+ion-textarea textarea {
+  max-height: 200px;
+}
+
+.discussion-card {
+  background: linear-gradient(rgba(255,255,255,.95), rgba(255,255,255,.9)), url(https://cdn0.iconfinder.com/data/icons/octicons/1024/comment-discussion-512.png);
+  background-repeat: no-repeat;
+  background-position-x: right;
+  background-position-y: -15px;
+  background-size: 70px;
+}
+
+
+// .question-card {
+//   background: linear-gradient(rgba(255,255,255,.95), rgba(255,255,255,.9)), url(https://image.flaticon.com/icons/png/512/127/127586.png);
+//   background-repeat: no-repeat;
+//   background-position-x: right;
+//   background-position-y: top;
+//   background-size: 50px;
+// }
+
+.ion-activatable:focus{
+  outline: 0;
 }

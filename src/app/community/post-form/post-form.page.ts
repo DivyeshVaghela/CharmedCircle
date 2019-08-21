@@ -137,15 +137,15 @@ export class PostFormPage implements OnInit {
     this.isSubmitionInitiated = true;
     if (this.postForm.invalid) return;
 
-    // if (!this.locationService.canTakeAction({areaId: this.areaId})){
-    //   const locationNotMatched = await this.alertCtrl.create({
-    //     header: 'Now allowed',
-    //     message: `You cannot interact within this community, because your current location doesn't match the locality of this community.`,
-    //     buttons: ['OK']
-    //   });
-    //   locationNotMatched.present();
-    //   return;
-    // }
+    if (!this.locationService.canTakeAction({areaId: this.areaId})){
+      const locationNotMatched = await this.alertCtrl.create({
+        header: 'Now allowed',
+        message: `You cannot interact within this community, because your current location doesn't match the locality of this community.`,
+        buttons: ['OK']
+      });
+      locationNotMatched.present();
+      return;
+    }
 
     const currentLocation = this.locationService.location$.value;
 
@@ -163,26 +163,25 @@ export class PostFormPage implements OnInit {
       latitude: currentLocation.latitude,
       longitude: currentLocation.longitude
     }
-    // this.postService.create(newPost, this.selectedPicture.name != null ? this.selectedPicture : null)
-    //   .then(async response => {
-    //     const successToast = await this.toastCtrl.create({
-    //       message: 'New post created successfully',
-    //       duration: 3000
-    //     });
-    //     successToast.present();
-    //     this.refreshContent = true;
-    //     this.closeModal();
-    //   })
-    //   .catch(async error => {
-    //     console.log('Error while creating a new post', error);
-    //     const errorToast = await this.toastCtrl.create({
-    //       message: 'There was some error while creating a new post',
-    //       duration: 3000
-    //     });
-    //     errorToast.present();
-    //     this.isSubmitting = false;
-    //     this.closeModal();
-    //   });
+    this.postService.create(newPost, this.selectedPicture.name != null ? this.selectedPicture : null)
+      .then(async response => {
+        const successToast = await this.toastCtrl.create({
+          message: 'New post created successfully',
+          duration: 3000
+        });
+        successToast.present();
+        this.refreshContent = true;
+        this.closeModal();
+      })
+      .catch(async error => {
+        console.log('Error while creating a new post', error);
+        const errorToast = await this.toastCtrl.create({
+          message: 'There was some error while creating a new post',
+          duration: 3000
+        });
+        errorToast.present();
+        this.closeModal();
+      });
   }
 
   closeModal(){
