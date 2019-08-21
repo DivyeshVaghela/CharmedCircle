@@ -21,7 +21,7 @@
         {{ post.content }}
       </p>
 
-      <ion-button fill="clear" [color]="postService.alreadyThumbsUp(post) ? 'medium' : 'primary'" (click)="thumbsUp(post)">
+      <ion-button fill="clear" [color]="postService.alreadyThumbsUp(post) ? 'tertiary' : 'primary'" (click)="thumbsUp()">
         <ion-icon name="thumbs-up" slot="start"></ion-icon>
         {{ post.thumbsUpCount == 0 ? 'Like' : post.thumbsUpCount }}
       </ion-button>

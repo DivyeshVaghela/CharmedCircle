@@ -99,7 +99,8 @@ export class PostService {
 
     const postDocRef = this.afStore.doc(`/communityAreas/${post.areaId}/communities/${post.communityId}/posts/${post.postId}`);
     return postDocRef.update({
-      thumbsUpUids: firestore.FieldValue.arrayUnion(uid)
+      thumbsUpUids: firestore.FieldValue.arrayUnion(uid),
+      thumbsUpCount: firestore.FieldValue.increment(1)
     });
   }
 

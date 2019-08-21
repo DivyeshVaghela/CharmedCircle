@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ModalController, AlertController } from '@ionic/angular';
+import { ModalController, AlertController, ToastController } from '@ionic/angular';
 
 import { take } from 'rxjs/operators';
 
@@ -32,6 +32,7 @@ export class PostListPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private modalCtrl: ModalController,
     private alertCtrl: AlertController,
+    private toastCtrl: ToastController,
 
     private authService: AuthService,
     private accountService: AccountService,
@@ -46,7 +47,11 @@ export class PostListPage implements OnInit {
 
   ngOnInit() {
     this.loadCommunityDetails();
-    this.loadPosts();
+  }
+
+  ionViewWillEnter(){
+    this.initQueryConfig();
+    this.loadPosts();    
   }
 
   async loadCommunityDetails(){
@@ -61,6 +66,12 @@ export class PostListPage implements OnInit {
     limit: 20,
     after: null
   };
+
+  initQueryConfig(){
+    this.posts = [];
+    this.queryConfig.after = null;
+    this.initialLoadFinised = false;
+  }
 
   loadPosts($event?, prepend?: boolean){
 
@@ -89,7 +100,11 @@ export class PostListPage implements OnInit {
 
   loadNextPage($event){
     this.queryConfig.reverse = true;
-    this.queryConfig.after = this.posts[this.posts.length - 1].timestamp;
+    try{
+      this.queryConfig.after = this.posts[this.posts.length - 1].timestamp;
+    } catch (error){
+      $event.target.complete();
+    }
     this.loadPosts($event);
   }
 
@@ -121,7 +136,24 @@ export class PostListPage implements OnInit {
     return true;
   }
 
+  getThubmsUpGuideText(post: Post): string{
+    if (!this.authService.isAuthenticated()) return null;
+    if (post.uid === this.authService.user$.value.uid)
+      return `You can't like your own post`;
+    if (post.thumbsUpUids.indexOf(this.authService.user$.value.uid) != -1)
+      return 'You already liked this post';
+    return null;
+  }
+
   async thumbsUp(post: Post){
+    const thubmsUpGuideText = this.getThubmsUpGuideText(post);
+    if (thubmsUpGuideText !== null){
+      const toast = await this.toastCtrl.create({
+        message: thubmsUpGuideText,
+        duration: 3000
+      });
+      toast.present();
+    }
     const canThumbsUp = await this.canThumbsUp(post);
     if (!canThumbsUp)
       return;
@@ -144,8 +176,7 @@ export class PostListPage implements OnInit {
     await newPostFormModal.present();
     newPostFormModal.onDidDismiss().then(returnValue => {
       if (returnValue.data.refreshContent){
-        this.posts = [];
-        this.queryConfig.after = null;
+        this.initQueryConfig();
         this.loadPosts();
       }
     })

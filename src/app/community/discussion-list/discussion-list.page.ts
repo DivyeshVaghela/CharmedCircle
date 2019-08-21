@@ -1,15 +1,18 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+
+import { ModalController } from '@ionic/angular';
+
+import { take } from 'rxjs/operators';
 
 import { DiscussionService } from 'src/app/services/discussion.service';
-import { Router } from '@angular/router';
-import { take } from 'rxjs/operators';
-import { Discussion } from 'src/app/models/discussion.model';
-import { ModalController } from '@ionic/angular';
-import { DiscussionFormPage } from '../discussion-form/discussion-form.page';
 import { AccountService } from 'src/app/services/account.service';
-import { Community } from 'src/app/models/community.model';
 import { CommunityService } from 'src/app/services/community.service';
+import { Community } from 'src/app/models/community.model';
+import { Discussion } from 'src/app/models/discussion.model';
 import { QueryConfig } from 'src/app/models/query-config.model';
+
+import { DiscussionFormPage } from '../discussion-form/discussion-form.page';
 
 @Component({
   selector: 'app-discussion-list',
@@ -51,7 +54,6 @@ export class DiscussionListPage implements OnInit {
     const startIndex = this.router.url.indexOf('?');
     if (startIndex != -1){
       const queryParams = this.router.url.substring(startIndex + 1);
-      console.log(queryParams);
       const params = queryParams.split('&');
       if (params.length > 0 && params[0].split('=')[0] === 'closedDiscussion'){
         this.discussions = [];
@@ -94,8 +96,12 @@ export class DiscussionListPage implements OnInit {
   loadNextPage($event){
     if (this.discussions.length <= 0) return;
 
-    const lastDiscussion = this.discussions[this.discussions.length - 1];
-    this.queryConfig.after = [lastDiscussion.isActive, lastDiscussion.startTimestamp];
+    try{
+      const lastDiscussion = this.discussions[this.discussions.length - 1];
+      this.queryConfig.after = [lastDiscussion.isActive, lastDiscussion.startTimestamp];
+    } catch (error){
+      $event.target.complete();
+    }
     this.loadDiscussions($event);
   }
 

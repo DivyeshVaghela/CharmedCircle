@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { AlertController, IonImg } from '@ionic/angular';
+import { AlertController, IonImg, ToastController } from '@ionic/angular';
 
 import { take } from 'rxjs/operators';
 
@@ -32,6 +32,7 @@ export class PostDetailsPage implements OnInit {
   constructor(
     private router: Router,
     private alertCtrl: AlertController,
+    private toastCtrl: ToastController,
 
     private postService: PostService,
     private accountService: AccountService,
@@ -59,11 +60,13 @@ export class PostDetailsPage implements OnInit {
   }
 
   ngOnInit() {
+    
     this.postService.details(this.areaId, this.communityId, this.postId)
       .pipe(take(1))
       .subscribe(async post => {
         this.post = post;
-        
+        post.postId = this.postId;
+
         const users = await this.accountService.getUserFields(['uid', 'displayName', 'email', 'photoURL'], this.post.uid);
         post.user = users[0];
 
@@ -113,16 +116,34 @@ export class PostDetailsPage implements OnInit {
 
     return true;
   }
+  
+  getThubmsUpGuideText(post: Post): string{
+    if (!this.authService.isAuthenticated()) return null;
+    if (post.uid === this.authService.user$.value.uid)
+      return `You can't like your own post`;
+    if (post.thumbsUpUids.indexOf(this.authService.user$.value.uid) != -1)
+      return 'You already liked this post';
+    return null;
+  }
 
-  async thumbsUp(post: Post){
-    const canThumbsUp = await this.canThumbsUp(post);
+  async thumbsUp(){
+    const thubmsUpGuideText = this.getThubmsUpGuideText(this.post);
+    if (thubmsUpGuideText !== null){
+      const toast = await this.toastCtrl.create({
+        message: thubmsUpGuideText,
+        duration: 3000
+      });
+      toast.present();
+    }
+
+    const canThumbsUp = await this.canThumbsUp(this.post);
     if (!canThumbsUp)
       return;
     const uid = this.authService.user$.value.uid;
-    this.postService.thumbsUp(post, uid)
+    this.postService.thumbsUp(this.post, uid)
       .then(() => {
-        post.thumbsUpUids.push(uid);
-        post.thumbsUpCount += 1;
+        this.post.thumbsUpUids.push(uid);
+        this.post.thumbsUpCount += 1;
       });
   }
 

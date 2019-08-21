@@ -20,8 +20,6 @@ import { AngularFireStorageModule } from '@angular/fire/storage';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { AuthService } from './services/auth.service';
-import { AuthGuardService } from './services/auth-guard.service';
 
 import { SlugifyPipe } from './pipes/slugify.pipe';
 

@@ -26,7 +26,9 @@
   <ng-container *ngIf="initialLoadFinised else skeleton">  
     <ion-card *ngFor="let post of posts">
       <ion-item *ngIf="post.user as user else userInfoSkeleton" lines="full" detail="true" routerLink="/charmed-circle/user-profile/{{ user.uid }}">
-        <ion-avatar slot="start"><ion-img [src]="user.photoURL"></ion-img></ion-avatar>
+        <ion-avatar slot="start">
+          <ion-img [src]="user.photoURL"></ion-img>
+        </ion-avatar>
         <ion-label>
           {{ user.displayName }}
           <p>{{ post.timestamp | date:'medium' }}</p>
@@ -53,7 +55,7 @@
         {{ post.content.substr(0, 50) }}.. 
         <a class="no-decoration" routerLink="/charmed-circle/community/{{ post.areaId }}/{{ post.communityId }}/post-list/{{ post.postId }}" routerDirection="forward">More</a>
       </ion-card-content>
-      <ion-button fill="clear" [color]="postService.alreadyThumbsUp(post) ? 'medium' : 'primary'" (click)="thumbsUp(post)">
+      <ion-button fill="clear" [color]="postService.alreadyThumbsUp(post) ? 'tertiary' : 'primary'" (click)="thumbsUp(post)">
         <ion-icon name="thumbs-up" slot="start"></ion-icon>
         {{ post.thumbsUpCount == 0 ? 'Like' : post.thumbsUpCount }}
       </ion-button>
