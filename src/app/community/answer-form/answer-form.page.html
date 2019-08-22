@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar class="ion-color-dark outline ion-text-center">
+    <ion-buttons slot="start">
+      <ion-button (click)="closeModal()"><ion-icon name="close"></ion-icon></ion-button>
+    </ion-buttons>
+
+    <ion-title>Answer</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="postAnswer()" *ngIf="!answerForm.disabled"><ion-icon name="checkmark"></ion-icon></ion-button>
+      <ion-spinner *ngIf="answerForm.disabled"></ion-spinner>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+
+  <form [formGroup]="answerForm">
+
+    <h3>{{ question }}</h3><br>
+
+    <ion-item>
+      <ion-textarea placeholder="Your answer.." rows="8" spellcheck="true" formControlName="answer"></ion-textarea>
+    </ion-item>
+    <div class="ion-text-right ion-padding-start ion-padding-end" 
+      *ngIf="(isSubmitionInitiated || answerForm.get('answer').touched) && answerForm.get('answer').invalid">
+      <ion-text color="danger" class="text-sm" *ngIf="answerForm.get('answer').errors.required">
+        Please write your answer
+      </ion-text>
+    </div>
+
+  </form>
+
+</ion-content>

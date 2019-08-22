@@ -1,12 +1,145 @@
 <ion-header>
   <ion-toolbar class="ion-color-dark outline">
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-back-button defaultHref="/charmed-circle/communities"></ion-back-button>
     </ion-buttons>
-    <ion-title>Question & Answers</ion-title>
+
+    <ion-title class="ion-activatable" routerLink="/charmed-circle/communities/{{ areaId }}/{{ communityId }}">
+      <ion-ripple-effect type="unbounded"></ion-ripple-effect>
+      <ng-container *ngIf="communityDetails else titleSkeleton">{{ communityDetails.name }}</ng-container>
+      <ng-template #titleSkeleton><ion-skeleton-text animated width="50%"></ion-skeleton-text></ng-template>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content padding>
-  <p>Question List</p>
+<ion-content>
+
+  <ng-container *ngIf="initialLoadFinised else skeleton">
+
+    <ion-card *ngFor="let que of questions" class="question-card">
+      <ion-card-header>
+        <ion-card-title>
+          {{ que.question }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        {{ que.details.substr(0, 100) }}..
+        <a class="no-decoration"
+          routerLink="/charmed-circle/community/{{ que.areaId }}/{{ que.communityId }}/question-list/{{ que.questionId }}/answers">
+          More
+        </a>
+      </ion-card-content>
+
+      <ion-grid class="ion-text-center ion-margin-bottom">
+        <ion-row>
+          <ion-col style="white-space: nowrap">
+            <!-- Vote count -->
+            <ion-chip [color]="queAnsService.questionAlreadyVotedUp(que) ? 'tertiary' : 'primary'" (click)="questionVoteUp(que)">
+              <ion-icon class="ion-no-margin" name="arrow-dropup"></ion-icon>
+            </ion-chip>
+            <ion-chip outline="true">
+              {{ que.voteUpCount - que.voteDownCount }}
+            </ion-chip>
+            <ion-chip [color]="queAnsService.questionAlreadyVotedDown(que) ? 'tertiary' : 'primary'" (click)="questionVoteDown(que)">
+              <ion-icon class="ion-no-margin" name="arrow-dropdown"></ion-icon>
+            </ion-chip>
+          </ion-col>
+          <ion-col>
+            <!-- Answers count -->
+            <ion-button color="primary" fill="outline"
+              routerLink="/charmed-circle/community/{{ que.areaId }}/{{ que.communityId }}/question-list/{{ que.questionId }}/answers"
+              routerDirection="forward">
+              Answers <ion-badge mode="ios" class="ion-margin-start">{{ que.answersCount ? que.answersCount : 0 }}</ion-badge>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <ion-item *ngIf="que.user as user else userInfoSkeleton" lines="full" detail="true"
+        routerLink="/charmed-circle/user-profile/{{ user.uid }}">
+        <ion-avatar slot="start">
+          <ion-img [src]="user.photoURL"></ion-img>
+        </ion-avatar>
+        <ion-label>
+          {{ user.displayName }}
+          <p>{{ que.timestamp | date:'medium' }}</p>
+        </ion-label>
+      </ion-item>
+      <ng-template #userInfoSkeleton>
+        <ion-item lines="full">
+          <ion-avatar slot="start">
+            <ion-skeleton-text animated></ion-skeleton-text>
+          </ion-avatar>
+          <ion-label>
+            <ion-skeleton-text animated width="60%"></ion-skeleton-text>
+            <p>
+              <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+            </p>
+          </ion-label>
+        </ion-item>
+      </ng-template>
+
+    </ion-card>
+
+    <div class="screen-centered-content" *ngIf="questions.length == 0">
+      <div>
+        <img src="assets/images/questions.png" alt="No Questions" class="no-content-placeholder">
+        <br>
+        No questions asked in this community,<br><br>
+        
+        <ion-button color="primary" fill="outline" (click)="openNewQuestionForm()">
+          <ion-icon slot="start" name="add"></ion-icon>
+          Ask a Question
+        </ion-button>
+      </div>
+    </div>
+
+    <ion-infinite-scroll (ionInfinite)="loadNextPage($event)">
+      <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Loading more questions.."></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+
+  </ng-container>
+
+  <ng-template #skeleton>
+    <ion-card *ngFor="let i of [1,2,3]">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content class="content-wrap">
+        <p>
+          <ion-skeleton-text animated width="100%"></ion-skeleton-text>
+          <ion-skeleton-text animated width="90%"></ion-skeleton-text>
+        </p>
+      </ion-card-content>
+
+      <ion-grid>
+        <ion-row>
+          <ion-col><ion-skeleton-text animated width="50%"></ion-skeleton-text></ion-col>
+          <ion-col><ion-skeleton-text animated width="50%"></ion-skeleton-text></ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <ion-item lines="full">
+        <ion-avatar slot="start">
+          <ion-skeleton-text animated></ion-skeleton-text>
+        </ion-avatar>
+        <ion-label>
+          <ion-skeleton-text animated width="60%"></ion-skeleton-text>
+          <p>
+            <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+          </p>
+        </ion-label>
+      </ion-item>
+      
+    </ion-card>
+  </ng-template>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" (click)="openNewQuestionForm()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

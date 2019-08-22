@@ -18,16 +18,17 @@ import { Community } from '../models/community.model';
   templateUrl: './communities.page.html',
   styleUrls: ['./communities.page.scss'],
 })
-export class CommunitiesPage implements OnInit, OnDestroy {
+export class CommunitiesPage implements OnInit {
 
-  communities: Community[];
+  communities: Community[] = [];
   currentLocation: Location = null;
 
   locationNotMatchAlert: HTMLIonAlertElement;
 
-  routeEventSubscription: Subscription;
-  previousUrl: string = '';
-  private communityDetailsRegEx = new RegExp(/^\/charmed-circle\/communities\/.+\/.+$/);
+  initialLoadFinised = false;
+
+  // previousUrl: string = '';
+  // private communityDetailsRegEx = new RegExp(/^\/charmed-circle\/communities\/.+\/.+$/);
 
   constructor(
     private router: Router,
@@ -63,15 +64,10 @@ export class CommunitiesPage implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.routeEventSubscription = this.router.events.pipe(
-      filter(event => {
-        return (event instanceof NavigationStart);
-      })
-    ).subscribe((event: NavigationStart) => {
-      if (this.communityDetailsRegEx.test(this.previousUrl))
-        this.loadCommunities();
-      this.previousUrl = event.url;
-    });
+    // this.loadCommunities();
+  }
+
+  ionViewWillEnter(){
     this.loadCommunities();
   }
 
@@ -82,6 +78,8 @@ export class CommunitiesPage implements OnInit, OnDestroy {
       .subscribe(
         response =>  {
           this.communities = response;
+
+          this.initialLoadFinised = true;
         },
         error => console.log('Error fetching the commnities', error)
       );
@@ -101,13 +99,6 @@ export class CommunitiesPage implements OnInit, OnDestroy {
       if (returnValue.data.refreshContent)
         this.loadCommunities();
     });
-  }
-
-  ngOnDestroy(): void {
-    if (this.routeEventSubscription != null){
-      this.routeEventSubscription.unsubscribe();
-      this.routeEventSubscription = null;
-    }
   }
 
   async joinCommunity(community: Community){

@@ -20,10 +20,16 @@ const routes: Routes = [
         path: 'post-list/:postId',
         loadChildren: () => import('./post-details/post-details.module').then(m => m.PostDetailsPageModule)
       },
+      
       { 
         path: 'question-list', 
         loadChildren: () => import('./question-list/question-list.module').then(m => m.QuestionListPageModule)
       },
+      { 
+        path: 'question-list/:questionId/answers',
+        loadChildren: () => import('./answers/answers.module').then(m => m.AnswersPageModule)
+      },
+
       { 
         path: 'discussion-list', 
         loadChildren: () => import('./discussion-list/discussion-list.module').then(m => m.DiscussionListPageModule)
@@ -36,6 +42,7 @@ const routes: Routes = [
         path: 'discussion-list/:discussionId/details', 
         loadChildren: () => import('./discussion-details/discussion-details.module').then(m => m.DiscussionDetailsPageModule)
       },
+      
       {
         path: '',
         redirectTo: 'post-list',

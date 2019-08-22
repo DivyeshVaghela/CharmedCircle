@@ -1,0 +1,45 @@
+<ion-header>
+  <ion-toolbar class="ion-color-dark outline ion-text-center">
+    <ion-buttons slot="start">
+      <ion-button (click)="closeModal()"><ion-icon name="close"></ion-icon></ion-button>
+    </ion-buttons>
+
+    <ion-title>Ask a Question</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="createQuestion()" *ngIf="!questionForm.disabled"><ion-icon name="checkmark"></ion-icon></ion-button>
+      <ion-spinner *ngIf="questionForm.disabled"></ion-spinner>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+
+  <form [formGroup]="questionForm">
+
+    <ion-item>
+      <ion-input type="text" placeholder="Question" formControlName="question"></ion-input>
+    </ion-item>
+    <div class="ion-text-right ion-padding-start ion-padding-end" 
+      *ngIf="(isSubmitionInitiated || questionForm.get('question').touched) && questionForm.get('question').invalid">
+      <ion-text color="danger" class="text-sm" *ngIf="questionForm.get('question').errors.required">
+        Question is required field
+      </ion-text>
+    </div>
+
+    <ion-item>
+      <ion-textarea placeholder="Explain your question.." rows="5" spellcheck="true" formControlName="details"></ion-textarea>
+    </ion-item>
+    <div class="ion-text-right ion-padding-start ion-padding-end" 
+      *ngIf="(isSubmitionInitiated || questionForm.get('details').touched) && questionForm.get('details').invalid">
+      <ion-text color="danger" class="text-sm" *ngIf="questionForm.get('details').errors.required">
+        Please explain your question
+      </ion-text>
+      <ion-text color="danger" class="text-sm" *ngIf="questionForm.get('details').errors.minlength">
+        Write explaination of at least {{ questionForm.get('details').errors.minlength.requiredLength }} characters long
+      </ion-text>
+    </div>
+
+  </form>
+
+</ion-content>

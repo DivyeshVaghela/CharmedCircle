@@ -16,63 +16,105 @@
     </ion-item>
   </ion-card>
 
-  <ion-card *ngFor="let community of communities">
-    <ion-item lines="full" detail="true" routerDirection="forward"
-      routerLink="/charmed-circle/community/{{ community.areaId }}/{{ community.communityId }}">
-      <ion-label text-wrap>
-        <strong>{{ community.name }}</strong>
-        <ion-chip color="tertiary" outline="true" *ngIf="community.isPending">
-          <ion-label><h6><ion-icon name="contrast"></ion-icon> Pending</h6></ion-label>
+  <ng-container *ngIf="initialLoadFinised else skeleton">
+
+    <ion-card *ngFor="let community of communities">
+      <ion-item lines="full" detail="true" routerDirection="forward"
+        routerLink="/charmed-circle/community/{{ community.areaId }}/{{ community.communityId }}">
+        <ion-label text-wrap>
+          <strong>{{ community.name }}</strong>
+          <ion-chip color="tertiary" outline="true" *ngIf="community.isPending">
+            <ion-label><h6><ion-icon name="contrast"></ion-icon> Pending</h6></ion-label>
+          </ion-chip>
+          <h3 *ngIf="community.subtitle">{{ community.subtitle }}</h3>
+        </ion-label>
+      </ion-item>
+      <ion-card-content>
+        {{ community.details }}
+        <a class="no-decoration" routerLink="{{community.areaId}}/{{community.communityId}}">More..</a>
+      </ion-card-content>
+  
+      <ion-item color="light" class="ion-margin-bottom">
+        <ion-grid class="ion-no-padding">
+          <ion-row class="ion-text-center">
+            <ion-col>
+              Members <br> {{ community.members ? community.members.length : 0 }}
+            </ion-col>
+            <ion-col>
+              Questions <br> {{ community.questionsCount ? community.questionsCount : 0 }}
+            </ion-col>
+            <ion-col>
+              Discussions <br> {{ community.discussionsCount ? community.discussionsCount :  0 }}
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-item>
+  
+      <div class="ion-text-center">
+        <ion-chip color="success" mode="ios" *ngIf="isMember(community) else join">
+          <ion-label><h2><ion-icon name="checkmark-circle"></ion-icon> Joined</h2></ion-label>
         </ion-chip>
-        <h3 *ngIf="community.subtitle">{{ community.subtitle }}</h3>
-      </ion-label>
-    </ion-item>
-    <ion-card-content>
-      {{ community.details }}
-      <a class="no-decoration" routerLink="{{community.areaId}}/{{community.communityId}}">More..</a>
-    </ion-card-content>
-
-    <ion-item color="light" class="ion-margin-bottom">
-      <ion-grid class="ion-no-padding">
-        <ion-row class="ion-text-center">
-          <ion-col>
-            Members <br> {{ community.members ? community.members.length : 0 }}
-          </ion-col>
-          <ion-col>
-            Questions <br> {{ community.questionsCount ? community.questionsCount : 0 }}
-          </ion-col>
-          <ion-col>
-            Discussions <br> {{ community.discussionsCount ? community.discussionsCount :  0 }}
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-item>
-
-    <div class="ion-text-center">
-      <ion-chip color="success" mode="ios" *ngIf="isMember(community) else join">
-        <ion-label><h2><ion-icon name="checkmark-circle"></ion-icon> Joined</h2></ion-label>
-      </ion-chip>
-      <ng-template #join>
-        <ion-button color="primary" expand="full" size="large" class="ion-no-margin" (click)="joinCommunity(community)">
-          <ion-icon slot="start" name="log-in"></ion-icon> Join Now
-        </ion-button>
-      </ng-template>
-    </div>
-    
-  </ion-card>
-
-  <ng-container *ngIf="communities == null || communities.length == 0">
-    <div class="ion-text-center ion-padding">
-      <img src="assets/images/no-content.png" class="no-content-placeholder" alt="No Content">
-      <br>
-      No Community found for your current location,<br><br>
+        <ng-template #join>
+          <ion-button color="primary" expand="full" size="large" class="ion-no-margin" (click)="joinCommunity(community)">
+            <ion-icon slot="start" name="log-in"></ion-icon> Join Now
+          </ion-button>
+        </ng-template>
+      </div>
       
-      <ion-button color="primary" fill="outline" (click)="openNewCommunityForm()">
-        <ion-icon slot="start" name="add"></ion-icon>
-        Create new Community
-      </ion-button>
-    </div>
+    </ion-card>
+
+    <ng-container *ngIf="communities.length == 0">
+      <div class="screen-centered-content">
+        <div><img src="assets/images/no-content.png" class="no-content-placeholder" alt="No Content">
+          <br>
+          No Community found for your current location,<br><br>
+      
+          <ion-button color="primary" fill="outline" (click)="openNewCommunityForm()">
+            <ion-icon slot="start" name="add"></ion-icon>
+            Create new Community
+          </ion-button>
+        </div>
+      </div>
+    </ng-container>
+    
   </ng-container>
+
+  <ng-template #skeleton>
+    <ion-card *ngFor="let i of [1,2,3]">
+      <ion-item lines="full">
+        <ion-label>
+          <strong><ion-skeleton-text animated width="50%"></ion-skeleton-text></strong>
+          <h3><ion-skeleton-text animated width="80%"></ion-skeleton-text></h3>
+        </ion-label>
+      </ion-item>
+      <ion-card-content>
+        <p>
+          <ion-skeleton-text animated width="100%"></ion-skeleton-text>
+          <ion-skeleton-text animated width="80%"></ion-skeleton-text>
+        </p>
+        <p>
+          <ion-skeleton-text animated width="100%"></ion-skeleton-text>
+        </p>
+      </ion-card-content>
+
+      <ion-item color="light" class="ion-margin-bottom">
+        <ion-grid class="ion-no-padding">
+          <ion-row class="ion-text-center">
+            <ion-col>
+              <ion-skeleton-text animated width="50%"></ion-skeleton-text>
+            </ion-col>
+            <ion-col>
+              <ion-skeleton-text animated width="50%"></ion-skeleton-text>
+            </ion-col>
+            <ion-col>
+              <ion-skeleton-text animated width="50%"></ion-skeleton-text>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-item>
+
+    </ion-card>
+  </ng-template>
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button color="primary" (click)="openNewCommunityForm()">
