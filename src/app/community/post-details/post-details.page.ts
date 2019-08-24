@@ -13,6 +13,7 @@ import { ScrollDetail } from '@ionic/core';
 import { CommunityArea } from 'src/app/models/community-area.model';
 import { LocationService } from 'src/app/services/location.service';
 import { CommunityService } from 'src/app/services/community.service';
+import { UtilService } from 'src/app/services/util.service';
 
 @Component({
   selector: 'app-post-details',
@@ -38,7 +39,8 @@ export class PostDetailsPage implements OnInit {
     private accountService: AccountService,
     private authService: AuthService,
     private locationService: LocationService,
-    private communityService: CommunityService
+    private communityService: CommunityService,
+    private utilService: UtilService
   ) {
     const urlParts = this.router.url.split('/')
     this.areaId = urlParts[3];
@@ -73,7 +75,7 @@ export class PostDetailsPage implements OnInit {
         this.locationService.getCommunityArea(this.post.areaId).pipe(take(1))
           .subscribe(communityArea => this.communityArea = communityArea);
 
-        const communities = await this.communityService.getCommunityFields(this.post.areaId, this.post.communityId, ['name', 'subtitle']);
+        const communities = await this.communityService.getCommunityFields(this.post.areaId, this.post.communityId, ['name', 'subtitle', 'isPending']);
         this.community = communities[0];
       });
   }
@@ -102,43 +104,41 @@ export class PostDetailsPage implements OnInit {
 
   async canThumbsUp(post: Post): Promise<boolean>{
     const result = await this.postService.canThumbsUp(post)
-    if (!result.result){
-      if (result.reason == 'Location not matched'){
-        const locationNotMatched = await this.alertCtrl.create({
-          header: 'Now allowed',
-          message: `You cannot interact within this community, because your current location doesn't match the locality of this community.`,
-          buttons: ['OK']
-        });
-        locationNotMatched.present();
-      }
-      return false;
-    }
+    if (result.result) return true;
 
-    return true;
-  }
-  
-  getThubmsUpGuideText(post: Post): string{
-    if (!this.authService.isAuthenticated()) return null;
-    if (post.uid === this.authService.user$.value.uid)
-      return `You can't like your own post`;
-    if (post.thumbsUpUids.indexOf(this.authService.user$.value.uid) != -1)
-      return 'You already liked this post';
-    return null;
+    switch(result.reason){
+      case 'Location not matched':
+        this.utilService.alertLocationNotMatched();
+        break;
+      
+      case 'Already thumbsUp':
+        this.utilService.showToast('You already liked this post');
+        break;
+      
+      case 'Own post':
+        this.utilService.showToast(`You can't like your own post`);
+        break;
+    }
+    return false;
   }
 
   async thumbsUp(){
-    const thubmsUpGuideText = this.getThubmsUpGuideText(this.post);
-    if (thubmsUpGuideText !== null){
-      const toast = await this.toastCtrl.create({
-        message: thubmsUpGuideText,
-        duration: 3000
-      });
-      toast.present();
-    }
 
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
+
+    const membershipCheck = await this.utilService.checkMemberOfCommunity(this.areaId, this.communityId);
+    if (!membershipCheck) return;
+
+    if (this.community.isPending){
+      this.utilService.alertPendingCommunity();
+      return;
+    }
+    
     const canThumbsUp = await this.canThumbsUp(this.post);
     if (!canThumbsUp)
       return;
+    
     const uid = this.authService.user$.value.uid;
     this.postService.thumbsUp(this.post, uid)
       .then(() => {

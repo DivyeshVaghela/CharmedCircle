@@ -12,6 +12,8 @@ import { CommunityFormPage } from '../community-form/community-form.page';
 import { CommunityService } from '../services/community.service';
 import { Location } from '../models/location.model';
 import { Community } from '../models/community.model';
+import { UtilService } from '../services/util.service';
+import { AccountService } from '../services/account.service';
 
 @Component({
   selector: 'app-communities',
@@ -37,8 +39,10 @@ export class CommunitiesPage implements OnInit {
     private toastCtrl: ToastController,
 
     private authService: AuthService,
+    private accountService: AccountService,
     private locationService: LocationService,
-    private communityService: CommunityService
+    private communityService: CommunityService,
+    private utilService: UtilService
   ) {
 
     this.locationService.location$.subscribe((location: Location) => {
@@ -91,6 +95,10 @@ export class CommunitiesPage implements OnInit {
   }
 
   async openNewCommunityForm(){
+
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
+
     const newCommunityModal = await this.modalCtrl.create({
       component: CommunityFormPage
     });
@@ -102,17 +110,11 @@ export class CommunitiesPage implements OnInit {
   }
 
   async joinCommunity(community: Community){
-    if (!this.communityService.canJoinCommunity({ areaId: community.areaId })){
-      if (this.locationNotMatchAlert == null){
-        this.locationNotMatchAlert = await this.alertCtrl.create({
-          header: `Locality didn't match`,
-          message: 'You cannot join this community because this community is not from your locality. Your current locality is based on your location.',
-          buttons: ['OK']
-        });
-      }
-      this.locationNotMatchAlert.present();
-      return;
-    }
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
+
+    const localityCheck = await this.utilService.checkLocality(community.areaId);
+    if (!localityCheck) return;
 
     this.communityService.joinCommunity({ 
       areaId: community.areaId, 
@@ -128,6 +130,8 @@ export class CommunitiesPage implements OnInit {
         duration: 3000
       });
       successToast.present();
+
+      this.accountService.refetchUserDetails();      
     }).catch(error => console.log('Community join error', error));
   }
 }

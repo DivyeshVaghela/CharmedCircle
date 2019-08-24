@@ -56,18 +56,18 @@ export class LocationService implements OnDestroy {
           this.updateLastKnownLocation(position);
       });
 
-      this.authService.user$.subscribe(user => {
-        if (user == null){
-          if (this.watchLocationSubscription != null){
-            this.watchLocationSubscription.unsubscribe();
-            this.watchLocationSubscription = null;
-            console.log('Location traking stopped');
-          }
-        } else if (this.watchLocationSubscription == null){
-          this.startLocationTracking();
-          console.log('Location traking started');
-        }
-      });
+      // this.authService.user$.subscribe(user => {
+      //   if (user == null){
+      //     if (this.watchLocationSubscription != null){
+      //       this.watchLocationSubscription.unsubscribe();
+      //       this.watchLocationSubscription = null;
+      //       console.log('Location traking stopped');
+      //     }
+      //   } else if (this.watchLocationSubscription == null){
+      //     this.startLocationTracking();
+      //     console.log('Location traking started');
+      //   }
+      // });
 
       // geolocation.getCurrentPosition().then((position: Geoposition) => {
       //   console.log('got the position', position);
@@ -84,7 +84,7 @@ export class LocationService implements OnDestroy {
 
   startLocationTracking(){
 
-    if (!this.authService.isAuthenticated()) return;
+    // if (!this.authService.isAuthenticated()) return;
 
     this.watchLocationSubscription = this.geolocation.watchPosition().pipe(
       throttleTime(this.locationUpdateInterval * 1000),
@@ -97,13 +97,13 @@ export class LocationService implements OnDestroy {
       this.resolveReverseGeocode(position).then((area: Area) => {
         position.area = area;
 
-        if (area.countryName && area.countryName !== '' && area.administrativeArea && area.administrativeArea.trim() !== '' &&
-          area.subAdministrativeArea && area.subAdministrativeArea !== ''){
+        if (area.countryName && area.countryName.trim() !== '' && area.administrativeArea && area.administrativeArea.trim() !== '' &&
+          area.subAdministrativeArea && area.subAdministrativeArea.trim() !== ''){
           this.location$.next(position);
         }
       }, error => {
         console.log('error in getting area', error);
-        this.location$.next(position);
+        // this.location$.next(position);
       });
 
     }, error => {
@@ -122,7 +122,7 @@ export class LocationService implements OnDestroy {
 
   updateLastKnownLocation(location: Location): Promise<void>{
     return Promise.all([
-      // this.updateLastKnownLocationInStore(location),
+      this.updateLastKnownLocationInStore(location),
       this.updateLastKnownLocationInDevice(location)
     ]).then(
       () => { resolve; },
@@ -190,7 +190,12 @@ export class LocationService implements OnDestroy {
   }
 
   canTakeAction(action: { areaId: string }, location?: { countryCode: string, state: string, city: string }): boolean{
-    return (action.areaId === this.getAreaId());
+    let area = null;
+    if (location)
+      area = this.getAreaId(location);
+    else
+      area = this.getAreaId();
+    return (action.areaId === area);
   }
 
   ngOnDestroy(): void {

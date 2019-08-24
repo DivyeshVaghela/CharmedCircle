@@ -8,6 +8,7 @@ import { DocumentData } from 'firesql/utils';
 
 import { AuthService } from './auth.service';
 import { User } from '../models/user.model';
+import { take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +32,18 @@ export class AccountService {
     }
     
     return this.afStore.doc<User>(`/users/${uid}`).valueChanges();
+  }
+
+  refetchUserDetails(uid?: string){
+    if (!uid && !this.authService.isAuthenticated()) return;
+
+    this.afStore.doc<User>(`users/${uid}`)
+      .valueChanges()
+      .pipe(take(1))
+      .subscribe(fireUser => {
+        this.updateUserInDevice(fireUser);
+        this.authService.user$.next(fireUser);
+      });
   }
 
   getUserFields(fields: string[], uid?: string){

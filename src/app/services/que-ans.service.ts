@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { Answer } from '../models/answer.model';
 import { AuthService } from './auth.service';
 import { LocationService } from './location.service';
+import { CommunityService } from './community.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,8 @@ export class QueAnsService {
     private afStore: AngularFirestore,
 
     private authService: AuthService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private communityService: CommunityService
   ) { }
 
   list(areaId: string, communityId: string, queryConfig?: QueryConfig): Observable<Question[]>{
@@ -124,14 +126,14 @@ export class QueAnsService {
   canVoteQuestion(question: Question): {result: boolean, reason?: string}{
     if (!this.authService.isAuthenticated()) return {result:false, reason:'Not authenticated'};
 
-    if (!this.locationService.canTakeAction({areaId: question.areaId})){
-      return {result:false, reason:'Location not matched'};
-    }
+    if (!this.communityService.isMember(question.areaId, question.communityId)) return {result: false, reason: 'Not a member'};
+
+    if (this.authService.user$.value.uid === question.uid) return {result: false, reason: 'Own question'}
 
     if (!(this.questionAlreadyVotedUp(question) || this.questionAlreadyVotedDown(question))){
       return {result: true}
     } else {
-      return {result:false, reason:'Already thumbsUp'};
+      return {result:false, reason:'Already voted'};
     }
   }
 
@@ -174,14 +176,14 @@ export class QueAnsService {
   canVoteAnswer(answer: Answer): {result: boolean, reason?: string}{
     if (!this.authService.isAuthenticated()) return {result:false, reason:'Not authenticated'};
 
-    if (!this.locationService.canTakeAction({areaId: answer.areaId})){
-      return {result:false, reason:'Location not matched'};
-    }
+    if (!this.communityService.isMember(answer.areaId, answer.communityId)) return {result: false, reason: 'Not a member'};
+
+    if (this.authService.user$.value.uid === answer.uid) return {result: false, reason: 'Own answer'}
 
     if (!(this.answerAlreadyVotedUp(answer) || this.answerAlreadyVotedDown(answer))){
       return {result: true}
     } else {
-      return {result:false, reason:'Already thumbsUp'};
+      return {result:false, reason:'Already voted'};
     }
   }
 

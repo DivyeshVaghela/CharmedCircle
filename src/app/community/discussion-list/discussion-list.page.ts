@@ -13,6 +13,7 @@ import { Discussion } from 'src/app/models/discussion.model';
 import { QueryConfig } from 'src/app/models/query-config.model';
 
 import { DiscussionFormPage } from '../discussion-form/discussion-form.page';
+import { UtilService } from 'src/app/services/util.service';
 
 @Component({
   selector: 'app-discussion-list',
@@ -33,7 +34,8 @@ export class DiscussionListPage implements OnInit {
 
     private communityService: CommunityService,
     private discussionService: DiscussionService,
-    private accountService: AccountService
+    private accountService: AccountService,
+    private utilService: UtilService
   ) {
     const urlParts = this.router.url.split('/')
     this.areaId = urlParts[3];
@@ -46,7 +48,7 @@ export class DiscussionListPage implements OnInit {
   }
 
   async loadCommunityDetails(){
-    const communities = await this.communityService.getCommunityFields(this.areaId, this.communityId, ['name']);
+    const communities = await this.communityService.getCommunityFields(this.areaId, this.communityId, ['name', 'isPending']);
     this.communityDetails = communities[0];
   }
 
@@ -106,6 +108,20 @@ export class DiscussionListPage implements OnInit {
   }
 
   async openNewDiscussionForm(){
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
+
+    const localityCheck = await this.utilService.checkLocality(this.areaId);
+    if (!localityCheck) return;
+
+    const membershipCheck = await this.utilService.checkMemberOfCommunity(this.areaId, this.communityId);
+    if (!membershipCheck) return;
+
+    if (this.communityDetails.isPending){
+      this.utilService.alertPendingCommunity();
+      return;
+    }
+
     const newDiscussionModal = await this.modalCtrl.create({
       component: DiscussionFormPage,
       componentProps: {

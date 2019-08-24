@@ -30,8 +30,8 @@
         </ion-label>
       </ion-item>
       <ion-card-content>
-        {{ community.details }}
-        <a class="no-decoration" routerLink="{{community.areaId}}/{{community.communityId}}">More..</a>
+        {{ community.details.substr(0, 100) }}..
+        <a class="no-decoration" routerLink="{{community.areaId}}/{{community.communityId}}">More</a>
       </ion-card-content>
   
       <ion-item color="light" class="ion-margin-bottom">

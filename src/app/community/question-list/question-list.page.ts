@@ -14,6 +14,7 @@ import { QueryConfig } from 'src/app/models/query-config.model';
 
 import { QuestionFormPage } from '../question-form/question-form.page';
 import { AuthService } from 'src/app/services/auth.service';
+import { UtilService } from 'src/app/services/util.service';
 
 @Component({
   selector: 'app-question-list',
@@ -36,7 +37,8 @@ export class QuestionListPage implements OnInit {
     private authService: AuthService,
     private accountService: AccountService,
     private communityService: CommunityService,
-    private queAnsService: QueAnsService
+    private queAnsService: QueAnsService,
+    private utilService: UtilService
   ) {
     const urlParts = this.router.url.split('/')
     this.areaId = urlParts[3];
@@ -51,7 +53,7 @@ export class QuestionListPage implements OnInit {
   }
 
   async loadCommunityDetails(){
-    const communities = await this.communityService.getCommunityFields(this.areaId, this.communityId, ['name']);
+    const communities = await this.communityService.getCommunityFields(this.areaId, this.communityId, ['name', 'isPending']);
     this.communityDetails = communities[0];
   }
 
@@ -115,6 +117,20 @@ export class QuestionListPage implements OnInit {
   }
 
   async openNewQuestionForm(){
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
+
+    const localityCheck = await this.utilService.checkLocality(this.areaId);
+    if (!localityCheck) return;
+
+    const membershipCheck = await this.utilService.checkMemberOfCommunity(this.areaId, this.communityId);
+    if (!membershipCheck) return;
+
+    if (this.communityDetails.isPending){
+      this.utilService.alertPendingCommunity();
+      return;
+    }
+
     const newQuestionModal = await this.modalCtrl.create({
       component: QuestionFormPage,
       componentProps: {
@@ -135,27 +151,40 @@ export class QuestionListPage implements OnInit {
   /**
    * Question voting
    */
-  getQueVoteGuideText(question: Question){
-    if (!this.authService.isAuthenticated()) return null;
-    if (question.uid === this.authService.user$.value.uid)
-      return `You can't vote your own question`;
-    if (question.voteUpUids.indexOf(this.authService.user$.value.uid) != -1 || question.voteDownUids.indexOf(this.authService.user$.value.uid) != -1)
-      return 'You already voted this question';
-    return null;
+
+  canVoteQuestion(question: Question): boolean {
+
+    const canVote = this.queAnsService.canVoteQuestion(question);
+    if (canVote.result) return true;
+
+    switch(canVote.reason){
+      case 'Not a member':
+        this.utilService.alertNotMember(this.areaId, this.communityId);
+        break;
+        
+      case 'Already voted':
+        this.utilService.showToast('You already voted this question');
+        break;
+
+      case 'Own question':
+        this.utilService.showToast(`You can't vote your own question`);
+        break;
+
+      default: 
+        if (this.communityDetails.isPending)
+          this.utilService.alertPendingCommunity();
+        break;
+    }
+    return false;
   }
 
   async questionVoteUp(question: Question){
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
 
-    const voteGuideText = this.getQueVoteGuideText(question);
-    if (voteGuideText !== null){
-      const toast = await this.toastCtrl.create({
-        message: voteGuideText,
-        duration: 3000
-      });
-      toast.present();
-    }
-
-    if (!this.queAnsService.canVoteQuestion(question).result) return;
+    const canVote = await this.canVoteQuestion(question);
+    if (!canVote)
+      return;
 
     this.queAnsService.questionVoteUp(question)
       .then(() => {
@@ -165,17 +194,12 @@ export class QuestionListPage implements OnInit {
   }
 
   async questionVoteDown(question: Question){
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
 
-    const voteGuideText = this.getQueVoteGuideText(question);
-    if (voteGuideText !== null){
-      const toast = await this.toastCtrl.create({
-        message: voteGuideText,
-        duration: 3000
-      });
-      toast.present();
-    }
-
-    if (!this.queAnsService.canVoteQuestion(question).result) return;
+    const canVote = await this.canVoteQuestion(question);
+    if (!canVote)
+      return;
 
     this.queAnsService.questionVoteDown(question)
       .then(() => {

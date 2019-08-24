@@ -8,14 +8,14 @@
           <h1>
             Sign in
           </h1>
-          <ion-button color="danger" fill="outline" (click)="authService.googleSignin()">
+          <ion-button color="danger" fill="outline" (click)="signin('google')">
             <ion-icon slot="start" name="logo-google"></ion-icon>
             Signin Using Google
           </ion-button>
 
           <hr style="width:20%; margin-left:40%; margin-right: 40%;">
 
-          <ion-button fill="clear" color="dark" routerLink="/">
+          <ion-button fill="clear" color="dark" routerLink="/charmed-circle" routerDirection="root">
             Continue without Signing in
           </ion-button>
       </ion-col>

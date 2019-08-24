@@ -1,16 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { QueAnsService } from 'src/app/services/que-ans.service';
-import { Question } from 'src/app/models/question.model';
-import { CommunityArea } from 'src/app/models/community-area.model';
-import { Answer } from 'src/app/models/answer.model';
+import { ModalController, ToastController } from '@ionic/angular';
+
 import { take } from 'rxjs/operators';
+
+import { AuthService } from 'src/app/services/auth.service';
+import { AccountService } from 'src/app/services/account.service';
 import { CommunityService } from 'src/app/services/community.service';
 import { LocationService } from 'src/app/services/location.service';
-import { AccountService } from 'src/app/services/account.service';
-import { ModalController, ToastController } from '@ionic/angular';
+import { QueAnsService } from 'src/app/services/que-ans.service';
+import { UtilService } from 'src/app/services/util.service';
+import { CommunityArea } from 'src/app/models/community-area.model';
+import { Question } from 'src/app/models/question.model';
+import { Answer } from 'src/app/models/answer.model';
+
 import { AnswerFormPage } from '../answer-form/answer-form.page';
-import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-answers',
@@ -25,7 +29,7 @@ export class AnswersPage implements OnInit {
 
   question: Question;
   communityArea: CommunityArea;
-  community: any;
+  communityDetails: any;
 
   answers: Answer[] = [];
   initialLoadFinished = false;
@@ -41,7 +45,8 @@ export class AnswersPage implements OnInit {
     private accountService: AccountService,
     private locationService: LocationService,
     private communityService: CommunityService,
-    private queAnsService: QueAnsService
+    private queAnsService: QueAnsService,
+    private utilService: UtilService
   ) {
     const urlParts = this.router.url.split('/')
     this.areaId = urlParts[3];
@@ -50,6 +55,7 @@ export class AnswersPage implements OnInit {
   }
 
   ngOnInit() {
+    this.loadCommunity();
     this.loadQuestion();
     this.loadAnswers();
   }
@@ -69,8 +75,8 @@ export class AnswersPage implements OnInit {
       .pipe(take(1))
       .subscribe(area => this.communityArea = area);
 
-    const communities = await this.communityService.getCommunityFields(this.areaId, this.communityId, ['name', 'subtitle']);
-    this.community = communities[0];
+    const communities = await this.communityService.getCommunityFields(this.areaId, this.communityId, ['name', 'subtitle', 'isPending']);
+    this.communityDetails = communities[0];
   }
 
   loadAnswers(){
@@ -94,7 +100,15 @@ export class AnswersPage implements OnInit {
     return this.question.uid === this.authService.user$.value.uid;
   }
 
-  acceptAnswer(answer: Answer){
+  async acceptAnswer(answer: Answer){
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
+
+    if (this.communityDetails.isPending){
+      this.utilService.alertPendingCommunity();
+      return;
+    }
+
     this.queAnsService.acceptAnswer(this.areaId, this.communityId, this.questionId, answer.answerId)
       .then(() => {
         answer.isAccepted = true;
@@ -104,6 +118,20 @@ export class AnswersPage implements OnInit {
   }
 
   async openAnswerForm(){
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
+
+    const localityCheck = await this.utilService.checkLocality(this.areaId);
+    if (!localityCheck) return;
+    
+    const membershipCheck = await this.utilService.checkMemberOfCommunity(this.areaId, this.communityId);
+    if (!membershipCheck) return;
+
+    if (this.communityDetails.isPending){
+      this.utilService.alertPendingCommunity();
+      return;
+    }
+
     const newAnswerModal = await this.modalCtrl.create({
       component: AnswerFormPage,
       componentProps: {
@@ -127,30 +155,43 @@ export class AnswersPage implements OnInit {
       }
     });
   }
+
   /**
    * Question voting
    */
-  getQueVoteGuideText(question: Question){
-    if (!this.authService.isAuthenticated()) return null;
-    if (question.uid === this.authService.user$.value.uid)
-      return `You can't vote your own question`;
-    if (question.voteUpUids.indexOf(this.authService.user$.value.uid) != -1 || question.voteDownUids.indexOf(this.authService.user$.value.uid) != -1)
-      return 'You already voted this question';
-    return null;
+  canVoteQuestion(question: Question): boolean {
+
+    const canVote = this.queAnsService.canVoteQuestion(question);
+    if (canVote.result) return true;
+
+    switch(canVote.reason){
+      case 'Not a member':
+        this.utilService.alertNotMember(this.areaId, this.communityId);
+        break;
+        
+      case 'Already voted':
+        this.utilService.showToast('You already voted this question');
+        break;
+
+      case 'Own question':
+        this.utilService.showToast(`You can't vote your own question`);
+        break;
+
+      default: 
+        if (this.communityDetails.isPending)
+          this.utilService.alertPendingCommunity();
+        break;
+    }
+    return false;
   }
 
   async questionVoteUp(question: Question){
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
 
-    const voteGuideText = this.getQueVoteGuideText(question);
-    if (voteGuideText !== null){
-      const toast = await this.toastCtrl.create({
-        message: voteGuideText,
-        duration: 3000
-      });
-      toast.present();
-    }
-
-    if (!this.queAnsService.canVoteQuestion(question).result) return;
+    const canVote = await this.canVoteQuestion(question);
+    if (!canVote)
+      return;
 
     this.queAnsService.questionVoteUp(question)
       .then(() => {
@@ -160,17 +201,12 @@ export class AnswersPage implements OnInit {
   }
 
   async questionVoteDown(question: Question){
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
 
-    const voteGuideText = this.getQueVoteGuideText(question);
-    if (voteGuideText !== null){
-      const toast = await this.toastCtrl.create({
-        message: voteGuideText,
-        duration: 3000
-      });
-      toast.present();
-    }
-
-    if (!this.queAnsService.canVoteQuestion(question).result) return;
+    const canVote = await this.canVoteQuestion(question);
+    if (!canVote)
+      return;
 
     this.queAnsService.questionVoteDown(question)
       .then(() => {
@@ -183,6 +219,33 @@ export class AnswersPage implements OnInit {
    * Answer voting
    */
 
+  canVoteAnswer(answer: Answer): boolean{
+
+    const canVote = this.queAnsService.canVoteAnswer(answer);
+    if (canVote.result) return true;
+
+    switch(canVote.reason){
+      case 'Not a member':
+        this.utilService.alertNotMember(this.areaId, this.communityId);
+        break;
+        
+      case 'Already voted':
+        this.utilService.showToast('You already voted this answer');
+        break;
+
+      case 'Own answer':
+        this.utilService.showToast(`You can't vote your own answer`);
+        break;
+
+      default: 
+        if (this.communityDetails.isPending)
+          this.utilService.alertPendingCommunity();
+        break;
+    }
+    return false;
+
+  }
+
   getAnsVoteGuideText(answer: Answer){
     if (!this.authService.isAuthenticated()) return null;
     if (answer.uid === this.authService.user$.value.uid)
@@ -193,17 +256,12 @@ export class AnswersPage implements OnInit {
   }
 
   async answerVoteUp(answer: Answer){
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
 
-    const voteGuideText = this.getAnsVoteGuideText(answer);
-    if (voteGuideText !== null){
-      const toast = await this.toastCtrl.create({
-        message: voteGuideText,
-        duration: 3000
-      });
-      toast.present();
-    }
-
-    if (!this.queAnsService.canVoteAnswer(answer).result) return;
+    const canVote = await this.canVoteAnswer(answer);
+    if (!canVote)
+      return;
 
     this.queAnsService.answerVoteUp(answer)
       .then(() => {
@@ -215,17 +273,12 @@ export class AnswersPage implements OnInit {
   }
 
   async answerVoteDown(answer: Answer){
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
 
-    const voteGuideText = this.getAnsVoteGuideText(answer);
-    if (voteGuideText !== null){
-      const toast = await this.toastCtrl.create({
-        message: voteGuideText,
-        duration: 3000
-      });
-      toast.present();
-    }
-
-    if (!this.queAnsService.canVoteAnswer(answer).result) return;
+    const canVote = await this.canVoteAnswer(answer);
+    if (!canVote)
+      return;
 
     this.queAnsService.answerVoteDown(answer)
       .then(() => {

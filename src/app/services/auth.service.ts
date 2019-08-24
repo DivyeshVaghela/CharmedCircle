@@ -55,13 +55,16 @@ export class AuthService {
     });
   }
 
-  updateUserInFirestore(userData: User) {
+  updateUserInFirestore(userData: User, provider?: string) {
     const { uid, email, displayName, photoURL, phoneNumber } = userData;
     const userRef: AngularFirestoreDocument<User> = this.afStore.doc<User>(`users/${uid}`);
-    const data = {
+    let data: any = {
       uid, email, displayName, photoURL, phoneNumber,
       lastLoginTime: new Date()
     };
+    if (provider){
+      data.provider = provider
+    }
     this.storeInDevice(data);
     return userRef.set(data, { merge: true });
   }
@@ -76,7 +79,7 @@ export class AuthService {
 
       // const provider = new auth.GoogleAuthProvider();
       // const credential = await this.afAuth.auth.signInWithPopup(provider);
-      this.updateUserInFirestore(credential.user);
+      this.updateUserInFirestore(credential.user, 'google');
       // await this.afAuth.auth.signInWithRedirect(provider);
     } catch (error) {
       if (error.code == 'auth/network-request-failed' || error == 7) {
@@ -89,7 +92,7 @@ export class AuthService {
   /**
    * clear the user login data from device storage
    */
-  async logout() {
+  async logout(): Promise<any> {
 
     this.googlePlus.logout().then((value) => {}, (error) => {
       console.log('GP log out error', error);
@@ -104,11 +107,10 @@ export class AuthService {
       console.log('Firebase log out error', error);
     });
 
-    this.storage.remove(this.USER_KEY).then(() => {
-      this.user$.next(null);
-    }, (error) => {
-      console.log('Device storage log out error', error);
-    });
+    await this.storage.remove(this.USER_KEY);
+    this.user$.next(null);
+
+    return true;
   }
 
   /**

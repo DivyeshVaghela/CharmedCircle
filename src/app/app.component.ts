@@ -6,6 +6,8 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AuthService } from './services/auth.service';
 import { Router } from '@angular/router';
 
+import { timer } from 'rxjs';
+
 import * as $ from 'jquery';
 
 @Component({
@@ -25,22 +27,32 @@ export class AppComponent implements AfterViewInit {
     this.initializeApp();
   }
 
+  showSplash = true;
+  orientation = 'portrait';
+
   initializeApp() {
     this.platform.ready().then(() => {
       this.statusBar.overlaysWebView(true);
       this.statusBar.styleDefault();
       this.splashScreen.hide();
 
-      //check whether the user is authenticated
-      this.authService.user$.subscribe((userState) => {
-        let destinationUrl = '/login';
-        if (userState != null){
-          if (this.router.url !== '/login')
-            destinationUrl = this.router.url;
-          else
-          destinationUrl = '/';
-        }
-        this.ngZone.run(() => this.router.navigateByUrl(destinationUrl));
+      this.orientation = (window.innerHeight > window.innerWidth) ? 'portrait' : 'landscape';
+
+      timer(3000).subscribe(() => {
+        this.showSplash = false
+
+        //check whether the user is authenticated
+        // this.authService.user$.subscribe((userState) => {
+        //   console.log('userState', userState);
+        //   let destinationUrl = '/login';
+        //   if (userState != null){
+        //     if (this.router.url !== '/login')
+        //       destinationUrl = this.router.url;
+        //     else
+        //     destinationUrl = '/';
+        //   }
+        //   this.ngZone.run(() => this.router.navigateByUrl(destinationUrl));
+        // });
       });
     });
   }

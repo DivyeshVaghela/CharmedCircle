@@ -13,6 +13,7 @@ import { LocationService } from '../../services/location.service';
 import { Post } from '../../models/post.model';
 import { CommunityService } from 'src/app/services/community.service';
 import { Community } from 'src/app/models/community.model';
+import { UtilService } from 'src/app/services/util.service';
 
 @Component({
   selector: 'app-post-list',
@@ -38,7 +39,8 @@ export class PostListPage implements OnInit {
     private accountService: AccountService,
     private locationService: LocationService,
     private postService: PostService,
-    private communityService: CommunityService
+    private communityService: CommunityService,
+    private utilService: UtilService
   ) {
     const urlParts = this.router.url.split('/')
     this.areaId = urlParts[3];
@@ -55,7 +57,7 @@ export class PostListPage implements OnInit {
   }
 
   async loadCommunityDetails(){
-    const communities = await this.communityService.getCommunityFields(this.areaId, this.communityId, ['name']);
+    const communities = await this.communityService.getCommunityFields(this.areaId, this.communityId, ['name', 'isPending']);
     this.communityDetails = communities[0];
   }
 
@@ -121,42 +123,41 @@ export class PostListPage implements OnInit {
 
   async canThumbsUp(post: Post): Promise<boolean>{
     const result = await this.postService.canThumbsUp(post)
-    if (!result.result){
-      if (result.reason == 'Location not matched'){
-        const locationNotMatched = await this.alertCtrl.create({
-          header: 'Now allowed',
-          message: `You cannot interact within this community, because your current location doesn't match the locality of this community.`,
-          buttons: ['OK']
-        });
-        locationNotMatched.present();
-      }
-      return false;
+    if (result.result) return true;
+
+    switch(result.reason){
+      case 'Location not matched':
+        this.utilService.alertLocationNotMatched();
+        break;
+      
+      case 'Already thumbsUp':
+        this.utilService.showToast('You already liked this post');
+        break;
+      
+      case 'Own post':
+        this.utilService.showToast(`You can't like your own post`);
+        break;
     }
-
-    return true;
-  }
-
-  getThubmsUpGuideText(post: Post): string{
-    if (!this.authService.isAuthenticated()) return null;
-    if (post.uid === this.authService.user$.value.uid)
-      return `You can't like your own post`;
-    if (post.thumbsUpUids.indexOf(this.authService.user$.value.uid) != -1)
-      return 'You already liked this post';
-    return null;
+    return false;
   }
 
   async thumbsUp(post: Post){
-    const thubmsUpGuideText = this.getThubmsUpGuideText(post);
-    if (thubmsUpGuideText !== null){
-      const toast = await this.toastCtrl.create({
-        message: thubmsUpGuideText,
-        duration: 3000
-      });
-      toast.present();
+    
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
+
+    const membershipCheck = await this.utilService.checkMemberOfCommunity(this.areaId, this.communityId);
+    if (!membershipCheck) return;
+
+    if (this.communityDetails.isPending){
+      this.utilService.alertPendingCommunity();
+      return;
     }
+    
     const canThumbsUp = await this.canThumbsUp(post);
     if (!canThumbsUp)
       return;
+
     const uid = this.authService.user$.value.uid;
     this.postService.thumbsUp(post, uid)
       .then(() => {
@@ -166,6 +167,21 @@ export class PostListPage implements OnInit {
   }
 
   async openNewPostForm(){
+
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
+
+    const localityCheck = await this.utilService.checkLocality(this.areaId);
+    if (!localityCheck) return;
+
+    const membershipCheck = await this.utilService.checkMemberOfCommunity(this.areaId, this.communityId);
+    if (!membershipCheck) return;
+
+    if (this.communityDetails.isPending){
+      this.utilService.alertPendingCommunity();
+      return;
+    }
+
     const newPostFormModal = await this.modalCtrl.create({
       component: PostFormPage,
       componentProps: {

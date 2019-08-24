@@ -21,7 +21,7 @@
           {{ discussion.topic }}
         </ion-card-title>
       </ion-card-header>
-      <ion-card-content class="content-wrap">
+      <ion-card-content>
         {{ discussion.details.substr(0, 100) }}..
         <a class="no-decoration"
           routerLink="/charmed-circle/community/{{ discussion.areaId }}/{{ discussion.communityId }}/discussion-list/{{ discussion.discussionId }}/details">
@@ -37,12 +37,15 @@
             </ion-chip>
           </ion-col>
           <ion-col>
-            <ion-button color="primary" fill="clear" 
+            <ion-button color="primary" fill="clear" *ngIf="!communityDetails?.isPending"
               routerLink="/charmed-circle/community/{{ discussion.areaId }}/{{ discussion.communityId }}/discussion-list/{{ discussion.discussionId }}" 
               routerDirection="forward">
               {{ discussion.isActive ? 'Jump into discussion' : 'View discussion' }} 
               <ion-icon slot="end" name="ios-arrow-forward"></ion-icon>
             </ion-button>
+            <ion-chip color="tertiary" outline="true" *ngIf="communityDetails?.isPending">
+              <ion-label><ion-icon name="contrast"></ion-icon> Pending Community</ion-label>
+            </ion-chip>
           </ion-col>
         </ion-row>
       </ion-grid>

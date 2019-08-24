@@ -15,6 +15,7 @@ import { Discussion } from 'src/app/models/discussion.model';
 
 import { CloseDiscussionFormPage } from '../close-discussion-form/close-discussion-form.page';
 import { AuthService } from 'src/app/services/auth.service';
+import { Community } from 'src/app/models/community.model';
 
 @Component({
   selector: 'app-discussion-details',
@@ -29,7 +30,7 @@ export class DiscussionDetailsPage implements OnInit {
 
   discussion: Discussion;
   communityArea: CommunityArea;
-  community: any;
+  communityDetails: Community;
   closedByUser: User;
   discussionClosed = false;
 
@@ -72,8 +73,8 @@ export class DiscussionDetailsPage implements OnInit {
         this.locationService.getCommunityArea(discussion.areaId).pipe(take(1))
           .subscribe(communityArea => this.communityArea = communityArea);
 
-        const communities = await this.communityService.getCommunityFields(discussion.areaId, discussion.communityId, ['name', 'subtitle']);
-        this.community = communities[0];
+        const communities = await this.communityService.getCommunityFields(discussion.areaId, discussion.communityId, ['name', 'subtitle', 'isPending']);
+        this.communityDetails = communities[0];
       });
   }
 

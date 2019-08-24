@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -8,6 +8,8 @@ import { AccountService } from '../services/account.service';
 import { User, JoinedCommunity } from '../models/user.model';
 import { LocationService } from '../services/location.service';
 import { AuthService } from '../services/auth.service';
+import { LoadingController } from '@ionic/angular';
+import { UtilService } from '../services/util.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -23,10 +25,14 @@ export class UserProfilePage implements OnInit, OnDestroy {
   joinedCommunities: any[] = [];
 
   constructor(
+    private router: Router,
     private activatedRoute: ActivatedRoute,
+    private loadingCtrl: LoadingController,
+
     private authService: AuthService,
     private accountService: AccountService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private utilService: UtilService
   ) {}
 
   ngOnInit() {
@@ -121,6 +127,23 @@ export class UserProfilePage implements OnInit, OnDestroy {
    */
   isOwnProfile(): boolean{
     return (this.authService.isAuthenticated() && this.uid === this.authService.user$.value.uid);
+  }
+
+  async logout(){
+    const loading = await this.loadingCtrl.create({
+      message: 'Please wait..',
+      spinner: 'crescent'
+    });
+    loading.present();
+
+    this.authService.logout().then(() => {
+      loading.dismiss();
+      this.utilService.showToast('You are now signed out');
+      this.router.navigateByUrl('/login', { replaceUrl: true });
+    }).catch((error) => {
+      loading.dismiss();
+      this.utilService.showToast('There was some problem in signed out');
+    });
   }
 
   ngOnDestroy(): void {

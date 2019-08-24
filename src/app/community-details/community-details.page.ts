@@ -13,6 +13,7 @@ import { AccountService } from '../services/account.service';
 import { Community } from '../models/community.model';
 import { CommunityArea } from '../models/community-area.model';
 import { Location } from '@angular/common';
+import { UtilService } from '../services/util.service';
 
 @Component({
   selector: 'app-community-details',
@@ -38,7 +39,8 @@ export class CommunityDetailsPage implements OnInit {
     private communityService: CommunityService,
     private authService: AuthService,
     private accountService: AccountService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private utilService: UtilService
   ) {
     this.extractUrlParams();
   }
@@ -106,33 +108,29 @@ export class CommunityDetailsPage implements OnInit {
   }
 
   async joinCommunity(){
-    if (!this.communityService.canJoinCommunity({ areaId: this.community.areaId })){
-      if (this.locationNotMatchAlert == null){
-        this.locationNotMatchAlert = await this.alertCtrl.create({
-          header: `Locality didn't match`,
-          message: 'You cannot join this community because this community is not from your locality. Your current locality is based on your location.',
-          buttons: ['OK']
-        });
-      }
-      this.locationNotMatchAlert.present();
-      return;
-    }
+
+    const authCheck = await this.utilService.checkAuthentication();
+    if (!authCheck) return;
+
+    const localityCheck = await this.utilService.checkLocality(this.areaId);
+    if (!localityCheck) return;
 
     this.communityService.joinCommunity({ 
       areaId: this.community.areaId, 
       communityId: this.community.communityId, 
       name: this.community.name 
     }).then(async () => {
-      // this.community.members.push(this.authService.user$.value.uid);
-      // if (this.community.members.length >= 3){
-      //   this.community.isPending = false;
-      // }
+      this.community.members.push(this.authService.user$.value.uid);
+      if (this.community.members.length >= 3){
+        this.community.isPending = false;
+      }
       this.loadCommunityDetails();
       const successToast = await this.toastCtrl.create({
         message: `You joined the community '${this.community.name}'`,
         duration: 3000
       });
       successToast.present();
+
     }).catch(error => console.log('Community join error', error));
   }
 }

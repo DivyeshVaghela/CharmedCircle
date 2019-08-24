@@ -12,6 +12,8 @@ export interface User{
 
   lastKnownLocation?: Location;
   joinedCommunities?: JoinedCommunity[];
+
+  provider?: string;
 }
 
 export interface JoinedCommunity{

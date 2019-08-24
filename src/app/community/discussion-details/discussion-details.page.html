@@ -34,12 +34,15 @@
             </ion-chip>
           </ion-col>
           <ion-col>
-            <ion-button color="primary" fill="clear"
-              routerLink="/charmed-circle/community/{{ discussion.areaId }}/{{ discussion.communityId }}/discussion-list/{{ discussion.discussionId }}"
+            <ion-button color="primary" fill="clear" *ngIf="!communityDetails?.isPending"
+              routerLink="/charmed-circle/community/{{ areaId }}/{{ communityId }}/discussion-list/{{ discussionId }}"
               routerDirection="forward">
               {{ discussion.isActive ? 'Jump into discussion' : 'View discussion' }} 
               <ion-icon slot="end" name="ios-arrow-forward"></ion-icon>
             </ion-button>
+            <ion-chip color="tertiary" outline="true" *ngIf="communityDetails?.isPending">
+              <ion-label><ion-icon name="contrast"></ion-icon> Pending Community</ion-label>
+            </ion-chip>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -107,9 +110,9 @@
       </ion-card>
 
       <ion-card class="ion-no-margin ion-margin-top">
-        <ion-item lines=full *ngIf="community else communitySkeleton">
+        <ion-item lines=full *ngIf="communityDetails else communitySkeleton">
           <ion-icon slot="start" name="contacts"></ion-icon>
-          <ion-label>{{ community.name }} <p>{{ community.subtitle }}</p>
+          <ion-label>{{ communityDetails.name }} <p>{{ communityDetails.subtitle }}</p>
           </ion-label>
         </ion-item>
         <ion-item lines="full" *ngIf="communityArea else communitySkeleton">

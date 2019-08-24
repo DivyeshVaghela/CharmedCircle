@@ -114,6 +114,8 @@ export class PostService {
   async canThumbsUp(post: Post): Promise<{result: boolean, reason?: string}>{
     if (!this.authService.isAuthenticated()) return {result:false, reason:'Not authenticated'};
 
+    if (this.authService.user$.value.uid === post.uid) return {result: false, reason: 'Own post'}
+
     if (!this.locationService.canTakeAction({areaId: post.areaId})){
       return {result:false, reason:'Location not matched'};
     }

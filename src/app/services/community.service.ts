@@ -11,6 +11,7 @@ import { AuthService } from './auth.service';
 import { SlugifyPipe } from '../pipes/slugify.pipe';
 import { CommunityArea } from '../models/community-area.model';
 import { LocationService } from './location.service';
+import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -143,5 +144,19 @@ export class CommunityService {
     if (!location)
       location = this.locationService.location$.value.area;
     return (community.areaId === this.locationService.getAreaId(location));
+  }
+
+  isMember(areaId: string, communityId: string, uid?: string){
+    if (!uid && !this.authService.isAuthenticated()) return false;
+
+    const user: User = this.authService.user$.value;
+    if (!uid)
+      uid = user.uid;
+    
+    const found = user.joinedCommunities.find(joinedCommunity => {
+      return joinedCommunity.areaId == areaId && joinedCommunity.communityId == communityId;
+    })
+
+    return found;
   }
 }

@@ -7,13 +7,16 @@ import { AngularFirestoreCollection, AngularFirestore } from '@angular/fire/fire
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 
-import { DiscussionService } from 'src/app/services/discussion.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { LocationService } from 'src/app/services/location.service';
 import { AccountService } from 'src/app/services/account.service';
+import { CommunityService } from 'src/app/services/community.service';
+import { DiscussionService } from 'src/app/services/discussion.service';
+import { User } from 'src/app/models/user.model';
+import { Community } from 'src/app/models/community.model';
 import { Discussion } from 'src/app/models/discussion.model';
 import { DiscussionMessage } from 'src/app/models/discussion-message.model';
-import { User } from 'src/app/models/user.model';
+import { UtilService } from 'src/app/services/util.service';
 
 @Component({
   selector: 'app-discussion',
@@ -32,6 +35,7 @@ export class DiscussionPage implements OnInit, OnDestroy {
   conversation: DiscussionMessage[] = [];
   isSending = false;
 
+  communityDetails: Community;
   cachedUserDetails: User[] = [];
 
   currentUid: string = '';
@@ -46,7 +50,9 @@ export class DiscussionPage implements OnInit, OnDestroy {
     private authService: AuthService,
     private accountService: AccountService,
     private locationService: LocationService,
-    private discussionService: DiscussionService
+    private communityService: CommunityService,
+    private discussionService: DiscussionService,
+    private utilService: UtilService
   ) {
     const urlParts = this.router.url.split('/')
     this.areaId = urlParts[3];
@@ -94,11 +100,27 @@ export class DiscussionPage implements OnInit, OnDestroy {
     // ];
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     if (this.authService.isAuthenticated())
       this.currentUid = this.authService.user$.value.uid;
+    
+    await this.loadCommunityDetails();
+    if (this.communityDetails.isPending){
+      await this.utilService.alertPendingCommunity();
+      this.router.navigateByUrl(`/charmed-circle/community/${this.areaId}/${this.communityId}/discussion-list`);
+      return;
+    } else if (await this.utilService.checkMemberOfCommunity(this.areaId, this.communityId)){
+      this.router.navigateByUrl(`/charmed-circle/community/${this.areaId}/${this.communityId}/discussion-list`);
+      return;
+    }
+    
     this.loadDiscussionDetails();
     this.loadConversation();
+  }
+
+  async loadCommunityDetails(){
+    const communities = await this.communityService.getCommunityFields(this.areaId, this.communityId, ['name', 'isPending']);
+    this.communityDetails = communities[0];
   }
 
   loadDiscussionDetails(){

@@ -6,6 +6,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { CommunityPage } from './community.page';
+import { AuthGuardService } from '../services/auth-guard.service';
 
 const routes: Routes = [
   {
@@ -36,7 +37,8 @@ const routes: Routes = [
       },
       { 
         path: 'discussion-list/:discussionId', 
-        loadChildren: () => import('./discussion/discussion.module').then(m => m.DiscussionPageModule)
+        loadChildren: () => import('./discussion/discussion.module').then(m => m.DiscussionPageModule),
+        canActivate: [ AuthGuardService ]
       },
       { 
         path: 'discussion-list/:discussionId/details', 
