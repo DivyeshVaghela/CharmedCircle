@@ -38,6 +38,7 @@ export class AuthService {
           }
         })
       ).subscribe(user => {
+        this.storeInDevice(user);
         this.user$.next(user);
       }, error => {
         console.log('Firestore error', error);

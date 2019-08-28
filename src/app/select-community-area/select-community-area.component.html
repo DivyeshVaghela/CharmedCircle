@@ -1,0 +1,110 @@
+<ion-header>
+  <ion-toolbar class="ion-color-dark outline ion-text-center">
+    <ion-buttons slot="start">
+      <ion-button (click)="closeModal()"><ion-icon name="close"></ion-icon></ion-button>
+    </ion-buttons>
+
+    <ion-title>Select Locality</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="localitySelected()"><ion-icon name="checkmark"></ion-icon></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+
+  <ion-card *ngIf="!localitySelection.useLocation">
+    <ion-card-header>
+      <ion-card-title>Selected Locality</ion-card-title>
+    </ion-card-header>
+
+    <ion-item>
+      <ion-label>Country</ion-label>
+      <p>{{ localitySelection.countryName }} ({{ localitySelection.countryCode }})</p>
+    </ion-item>
+    <ion-item>
+      <ion-label>State</ion-label>
+      <p>{{ localitySelection.state }}</p>
+    </ion-item>
+    <ion-item>
+      <ion-label>City</ion-label>
+      <p>{{ localitySelection.locality }}</p>
+    </ion-item>
+  </ion-card>
+
+  <!-- Country, State, Locality (City/village) -->
+  <form [formGroup]="locationForm" class="ion-margin-top">
+    <ng-container formGroupName="manualSelector">
+      <ion-item>
+        <ion-label>Country</ion-label>
+        <ion-select placeholder="Select Country.." formControlName="country">
+          <ion-select-option *ngFor="let country of countries" [value]="country.countryCode">{{ country.country }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+    
+      <ion-item>
+        <ion-label>State</ion-label>
+        <ion-select placeholder="Select State.." formControlName="state">
+          <ion-select-option *ngFor="let state of states" [value]="state.state">{{ state.state }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+    
+      <ion-item>
+        <ion-label>Locality</ion-label>
+        <ion-select placeholder="Select City/Village.." formControlName="locality">
+          <ion-select-option *ngFor="let locality of localities" [value]="locality.city">{{ locality.city }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ng-container>
+
+    <hr class="spaced" style="width:20%; margin-left:40%; margin-right: 40%;">
+
+    <!-- Detect based on GPS -->
+    <ion-item lines="full">
+      <ion-label>Use my location</ion-label>
+      <ion-checkbox slot="end" formControlName="useLocation" #useLocation></ion-checkbox>
+    </ion-item>
+
+    <ion-card *ngIf="locationForm.get('useLocation').value">
+      <ion-card-header>
+        <ion-card-title>Current Location</ion-card-title>
+      </ion-card-header>
+  
+      <ion-list *ngIf="locationService.location$ | async as location else noLocation">
+        <ng-container *ngIf="location?.area as area else noLocation">
+          <ion-item>
+            <ion-label>Country</ion-label>
+            <p>{{ area.countryName }} ({{ area.countryCode }})</p>
+          </ion-item>
+          <ion-item>
+            <ion-label>State</ion-label>
+            <p>{{ area.administrativeArea }}</p>
+          </ion-item>
+          <ion-item>
+            <ion-label>City</ion-label>
+            <p>{{ area.subAdministrativeArea }}</p>
+          </ion-item>
+        </ng-container>
+      </ion-list>
+  
+      <ng-template #noLocation>
+        <ion-item>
+          <ion-label>Country</ion-label>
+          <p><ion-skeleton-text animated width="50%"></ion-skeleton-text></p>
+        </ion-item>
+        <ion-item>
+          <ion-label>State</ion-label>
+          <p><ion-skeleton-text animated width="50%"></ion-skeleton-text></p>          
+        </ion-item>
+        <ion-item>
+          <ion-label>City</ion-label>
+          <p><ion-skeleton-text animated width="50%"></ion-skeleton-text></p>          
+        </ion-item>
+      </ng-template>
+    </ion-card>
+
+  </form>
+
+
+</ion-content>

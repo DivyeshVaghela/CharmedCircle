@@ -14,6 +14,9 @@ import { Location } from '../models/location.model';
 import { Community } from '../models/community.model';
 import { UtilService } from '../services/util.service';
 import { AccountService } from '../services/account.service';
+import { CommunityArea } from '../models/community-area.model';
+
+import { SelectCommunityAreaComponent } from '../select-community-area/select-community-area.component';
 
 @Component({
   selector: 'app-communities',
@@ -23,11 +26,19 @@ import { AccountService } from '../services/account.service';
 export class CommunitiesPage implements OnInit {
 
   communities: Community[] = [];
-  currentLocation: Location = null;
 
   locationNotMatchAlert: HTMLIonAlertElement;
 
   initialLoadFinised = false;
+
+  selectedAreaId: string;
+  selectedCommunityArea: CommunityArea;
+  localitySelection = { 
+    useLocation: true,
+    countryCode: null,
+    state: null,
+    locality: null,
+  };
 
   // previousUrl: string = '';
   // private communityDetailsRegEx = new RegExp(/^\/charmed-circle\/communities\/.+\/.+$/);
@@ -44,10 +55,6 @@ export class CommunitiesPage implements OnInit {
     private communityService: CommunityService,
     private utilService: UtilService
   ) {
-
-    this.locationService.location$.subscribe((location: Location) => {
-      this.currentLocation = location;
-    });
 
     // this.communities = [
     //   {
@@ -77,7 +84,16 @@ export class CommunitiesPage implements OnInit {
 
   loadCommunities(){
 
-    this.communityService.get(this.locationService.getAreaId())
+    this.selectedAreaId = this.localitySelection.useLocation == true ? this.locationService.getAreaId() : this.locationService.getAreaId({
+      countryCode: this.localitySelection.countryCode,
+      state: this.localitySelection.state,
+      city: this.localitySelection.locality
+    });
+    this.locationService.getCommunityArea(this.selectedAreaId)
+      .pipe(take(1))
+      .subscribe(communityArea => this.selectedCommunityArea = communityArea);
+
+    this.communityService.get(this.selectedAreaId)
       .pipe(take(1))
       .subscribe(
         response =>  {
@@ -98,6 +114,9 @@ export class CommunitiesPage implements OnInit {
 
     const authCheck = await this.utilService.checkAuthentication();
     if (!authCheck) return;
+
+    const localityCheck = await this.utilService.checkLocality(this.selectedAreaId, null, true, `You can't create a community in this locality, because your current location doesn't matched with this locality`);
+    if (!localityCheck) return;
 
     const newCommunityModal = await this.modalCtrl.create({
       component: CommunityFormPage
@@ -133,5 +152,22 @@ export class CommunitiesPage implements OnInit {
 
       this.accountService.refetchUserDetails();      
     }).catch(error => console.log('Community join error', error));
+  }
+
+  async selectLocality(){
+    const selectLocalityModal = await this.modalCtrl.create({
+      component: SelectCommunityAreaComponent,
+      componentProps: {
+        localitySelection: this.localitySelection
+      }
+    });
+    selectLocalityModal.present();
+    selectLocalityModal.onWillDismiss().then(returnValue => {
+      if (returnValue.data && JSON.stringify(this.localitySelection) !== JSON.stringify(returnValue.data)){
+        this.localitySelection = returnValue.data;
+        this.initialLoadFinised = false;
+        this.loadCommunities();
+      }
+    });
   }
 }

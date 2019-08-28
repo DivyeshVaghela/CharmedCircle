@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { CommunitiesPage } from './communities.page';
 import { CommunityFormPage } from '../community-form/community-form.page';
+import { SelectCommunityAreaComponent } from '../select-community-area/select-community-area.component';
 
 const routes: Routes = [
   {
@@ -26,9 +27,11 @@ const routes: Routes = [
   declarations: [
     CommunitiesPage,
     CommunityFormPage,
+    SelectCommunityAreaComponent
   ],
   entryComponents: [
-    CommunityFormPage
+    CommunityFormPage,
+    SelectCommunityAreaComponent
   ]
 })
 export class CommunitiesPageModule {}

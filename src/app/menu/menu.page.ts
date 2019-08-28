@@ -31,11 +31,6 @@ export class MenuPage implements OnInit {
         label: 'Communities',
         icon: 'contacts',
         url: '/charmed-circle/communities'
-      },
-      {
-        label: 'Settings',
-        icon: 'settings',
-        url: '/charmed-circle/settings'
       }
     ];
   }

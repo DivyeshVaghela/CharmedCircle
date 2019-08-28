@@ -58,11 +58,11 @@ export class UtilService {
     return false;
   }
 
-  async checkLocality(areaId: string, location?: { countryCode: string, state: string, city: string }, showAlert: boolean = true): Promise<boolean>{
-    if (this.locationService.canTakeAction({ areaId: areaId })) return true;
+  async checkLocality(areaId: string, location?: { countryCode: string, state: string, city: string }, showAlert: boolean = true, message?: string): Promise<boolean>{
+    if (this.locationService.canTakeAction({ areaId: areaId }, location)) return true;
 
     if (showAlert)
-      this.alertLocationNotMatched();
+      this.alertLocationNotMatched(message);
 
     return false;
   }

@@ -12,7 +12,13 @@
   <ion-card>
     <ion-item>
       <ion-icon slot="start" name="locate" color="primary"></ion-icon>
-      <ion-label>{{ currentLocation?.area.city + ', ' + currentLocation?.area.state + ', ' + currentLocation?.area.countryName }}</ion-label>
+      <ion-label *ngIf="selectedCommunityArea else communityAreaSkeleton">{{ selectedCommunityArea.city + ', ' + selectedCommunityArea.state + ', ' + selectedCommunityArea.country }}</ion-label>
+      <ng-template #communityAreaSkeleton>
+        <ion-label><ion-skeleton-text animated width="60%"></ion-skeleton-text></ion-label>
+      </ng-template>
+      <ion-button slot="end" fill="clear" (click)="selectLocality()">
+        <ion-icon name="create"></ion-icon>
+      </ion-button>
     </ion-item>
   </ion-card>
 
@@ -70,8 +76,7 @@
           No Community found for your current location,<br><br>
       
           <ion-button color="primary" fill="outline" (click)="openNewCommunityForm()">
-            <ion-icon slot="start" name="add"></ion-icon>
-            Create new Community
+            <ion-icon slot="start" name="add"></ion-icon> Create new Community
           </ion-button>
         </div>
       </div>

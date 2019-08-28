@@ -2,6 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { Platform } from '@ionic/angular';
 
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
+import { FireSQL } from 'firesql';
 
 import { Storage } from '@ionic/storage';
 import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
@@ -19,6 +20,7 @@ import { Location } from '../models/location.model';
 import { Area } from '../models/area.model';
 import { CommunityArea } from '../models/community-area.model';
 import { SlugifyPipe } from '../pipes/slugify.pipe';
+import { GeneralService } from './general.service';
 
 
 @Injectable({
@@ -45,7 +47,8 @@ export class LocationService implements OnDestroy {
     
     private accountService: AccountService,
     private authService: AuthService,
-    private slugifyPipe: SlugifyPipe) {
+    private slugifyPipe: SlugifyPipe,
+    private generalService: GeneralService) {
 
     this.platform.ready().then(() => {
 
@@ -200,5 +203,33 @@ export class LocationService implements OnDestroy {
 
   ngOnDestroy(): void {
     this.stopLocationTraking();
+  }
+
+  /**
+   * Community Areas related methods
+   */
+
+  async getCountries(): Promise<{country: string, countryCode: string}[]>{
+    const fireSQL = new FireSQL(this.afStore.firestore);
+    const query = `SELECT country, countryCode FROM communityAreas ORDER BY country`;
+    const result = await fireSQL.query<{country: string, countryCode: string}>(query);
+
+    return this.generalService.distinct<{country: string, countryCode: string}>(result, 'countryCode');
+  }
+
+  async getStates(countryCode: string): Promise<{ state: string }[]>{
+    const fireSQL = new FireSQL(this.afStore.firestore);
+    const query = `SELECT state FROM communityAreas WHERE countryCode = '${countryCode}' ORDER BY state`;
+    const result = await fireSQL.query<{ state: string }>(query);
+
+    return this.generalService.distinct<{ state: string }>(result, 'state');
+  }
+
+  async getLocalities(countryCode: string, state: string): Promise<{ city: string }[]>{
+    const fireSQL = new FireSQL(this.afStore.firestore);
+    const query = `SELECT city FROM communityAreas WHERE countryCode = '${countryCode}' AND state = '${state}' ORDER BY city`;
+    const result = await fireSQL.query<{ city: string }>(query);
+
+    return this.generalService.distinct<{ city: string }>(result, 'city');
   }
 }

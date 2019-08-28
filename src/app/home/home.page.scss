@@ -1,1 +1,38 @@
+.tags-container{
+  background: linear-gradient(135deg, rgba(47, 47, 47, 0.08) 0%, rgba(47, 47, 47, 0.08) 90%,rgba(75, 75, 75, 0.08) 90%, rgba(75, 75, 75, 0.08) 100%),linear-gradient(45deg, rgba(172, 172, 172, 0.1) 0%, rgba(172, 172, 172, 0.1) 65%,rgba(18, 18, 18, 0.1) 65%, rgba(18, 18, 18, 0.1) 100%),linear-gradient(90deg, rgba(157, 157, 157, 0.04) 0%, rgba(157, 157, 157, 0.04) 83%,rgba(198, 198, 198, 0.04) 83%, rgba(198, 198, 198, 0.04) 100%),linear-gradient(0deg, rgba(189, 189, 189, 0.07) 0%, rgba(189, 189, 189, 0.07) 22%,rgba(127, 127, 127, 0.07) 22%, rgba(127, 127, 127, 0.07) 100%),linear-gradient(0deg, rgba(79, 79, 79, 0.03) 0%, rgba(79, 79, 79, 0.03) 34%,rgba(96, 96, 96, 0.03) 34%, rgba(96, 96, 96, 0.03) 100%),linear-gradient(135deg, rgba(54, 54, 54, 0.05) 0%, rgba(54, 54, 54, 0.05) 68%,rgba(192, 192, 192, 0.05) 68%, rgba(192, 192, 192, 0.05) 100%),linear-gradient(0deg, rgba(62, 62, 62, 0.08) 0%, rgba(62, 62, 62, 0.08) 99%,rgba(114, 114, 114, 0.08) 99%, rgba(114, 114, 114, 0.08) 100%),linear-gradient(0deg, rgba(227, 227, 227, 0.07) 0%, rgba(227, 227, 227, 0.07) 83%,rgba(129, 129, 129, 0.07) 83%, rgba(129, 129, 129, 0.07) 100%),linear-gradient(45deg, rgba(27, 27, 27, 0.1) 0%, rgba(27, 27, 27, 0.1) 27%,rgba(58, 58, 58, 0.1) 27%, rgba(58, 58, 58, 0.1) 100%),linear-gradient(90deg, rgb(107, 107, 107),rgb(2, 2, 2));
+  color: white;
 
+  .title{
+    padding: 10px;
+  }
+
+  .tags-area{
+    display: flex;
+    /* border: solid 1px black; */
+    padding: 5px;
+    overflow-x: scroll;
+    -ms-overflow-style: none;   /*IE 10+*/
+    scrollbar-width: none;      /*Firefox*/
+  }
+  .tags-area::-webkit-scrollbar{   /* for webkit browsers only Chrome and Safari*/
+    display:none;
+  }
+
+  .tags-area .tags-slide{
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: space-evenly;
+    min-width: 100vw;
+    /* border: solid 1px black; */
+    padding: 5px;
+  }
+
+  ion-chip {
+    text-transform: capitalize;
+  }
+
+  ion-skeleton-text {
+    --background-rgb: 255,255,255;
+  }
+}

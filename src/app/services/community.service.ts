@@ -134,6 +134,12 @@ export class CommunityService {
     return communityDocRef.valueChanges();
   }
 
+  getCommunities(areaId: string, fields: string[]): Promise<Community[]>{
+    const fireSQL = new FireSQL(this.afStore.firestore.collection('communityAreas').doc(areaId))
+    let query = `SELECT ${fields.join(',')} FROM communities`;
+    return fireSQL.query<Community>(query);
+  }
+
   getCommunityFields(areaId: string, communityId: string, fields: string[]){
     const fireSQL = new FireSQL(this.afStore.firestore.collection('communityAreas').doc(areaId))
     let query = `SELECT ${fields.join(',')} FROM communities WHERE communityId='${communityId}'`;

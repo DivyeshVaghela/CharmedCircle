@@ -7,7 +7,7 @@ import { FireSQL } from 'firesql';
 import { DocumentData } from 'firesql/utils';
 
 import { AuthService } from './auth.service';
-import { User } from '../models/user.model';
+import { User, JoinedCommunity } from '../models/user.model';
 import { take } from 'rxjs/operators';
 
 @Injectable({
@@ -71,5 +71,20 @@ export class AccountService {
     });
     query += `)`;
     return this.fireSQL.query(query);
+  }
+
+  joinedCommunities(areaId?: string): JoinedCommunity[]{
+    if (!this.authService.isAuthenticated()) return [];
+
+    const user: User = this.authService.user$.value;
+    if (areaId){
+      if (user.joinedCommunities && user.joinedCommunities.length > 0)
+        return user.joinedCommunities.filter((joinedCommunity) => {
+          return joinedCommunity.areaId === areaId;
+        });
+      else
+        return [];
+    }
+    return user.joinedCommunities;
   }
 }

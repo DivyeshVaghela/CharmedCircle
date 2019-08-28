@@ -15,50 +15,119 @@
 </ion-header>
 
 <ion-content>
-  <div class="ion-padding">
+  <!-- <div class="ion-padding">
     The world is your oyster.
     <p>If you get lost, the <a target="_blank" rel="noopener" href="https://ionicframework.com/docs/">docs</a> will be your guide.</p>
+  </div> -->
+
+  <div class="tags-container">
+    <ng-container *ngIf="authService.isAuthenticated() else notSignIn">
+      <ng-container *ngIf="joinedCommunitiesAreaWise.length > 0 else noCommunityJoined">
+        <ng-container *ngFor="let joinedCommunityArea of joinedCommunitiesAreaWise">
+          <h5 class="title" *ngIf="joinedCommunityArea.communityArea.city else areaSkeleton">
+            <ion-icon name="pin" class="align"></ion-icon> 
+            {{ joinedCommunityArea.communityArea.city }}, {{ joinedCommunityArea.communityArea.state }}, {{ joinedCommunityArea.communityArea.country }}
+          </h5>
+          <ng-template #areaSkeleton>
+            <h5 class="title">
+              <ion-skeleton-text animated width="50%"></ion-skeleton-text>
+            </h5>
+          </ng-template>
+          <div class="tags-area">
+            <ng-container *ngFor="let slide of generalService.range(joinedCommunityArea.communities.length / tagsPerSlide)">
+              <div class="tags-slide" [ngStyle]="{'justify-content': (joinedCommunityArea.communities.length <= tagsPerSlide ? 'flex-start':'space-evenly')}">
+                <ion-chip color="light" *ngFor="let joinedCommunity of joinedCommunityArea.communities | slice:(slide == 0 ? 0 : slide * tagsPerSlide):((slide + 1) * tagsPerSlide)"
+                  routerLink="/charmed-circle/community/{{ joinedCommunity.areaId }}/{{ joinedCommunity.communityId }}" routerDirection="forward">
+                  <ion-label>{{ joinedCommunity.name }}</ion-label>
+                </ion-chip>
+              </div>
+            </ng-container>
+          </div>
+        </ng-container>
+      </ng-container>
+      
+      <ng-template #noCommunityJoined>
+        <p class="ion-text-center ion-padding">
+          You haven't joined any communities yet,<br>
+          <ion-button color="light" fill="clear" class="ion-margin" size="small"
+            routerLink="/charmed-circle/communities" routerDirection="forward">
+            Start Exploring Communities <ion-icon name="ios-arrow-forward" slot="end"></ion-icon>
+          </ion-button>
+        </p>
+      </ng-template>
+    </ng-container>
+
+    <ng-template #notSignIn>
+      <p class="ion-text-center ion-padding">
+        You are not signed in, <br>
+        <ion-button color="light" fill="clear" class="ion-margin" size="small" routerLink="/login"
+          routerDirection="forward">
+          Signin Now <ion-icon name="log-in" slot="end"></ion-icon>
+        </ion-button>
+      </p>
+    </ng-template>
+
+    <!-- Nearby communities -->
+    <ng-container *ngIf="localCommunities && localCommunities.length > 0 else noLocalCommunities">
+      <h5 class="title">
+        <ion-icon name="locate" class="align"></ion-icon> Nearby communities
+      </h5>
+      <div class="tags-area">
+        <ng-container *ngFor="let slide of generalService.range(localCommunities.length / tagsPerSlide)">
+          <div class="tags-slide" [ngStyle]="{'justify-content': (localCommunities.length <= tagsPerSlide ? 'flex-start':'space-evenly')}">
+            <ion-chip color="light" *ngFor="let localCommunity of localCommunities | slice:(slide == 0 ? 0 : slide * tagsPerSlide):((slide + 1) * tagsPerSlide)"
+              routerLink="/charmed-circle/community/{{ localCommunity.areaId }}/{{ localCommunity.communityId }}" routerDirection="forward">
+              <ion-label>{{ localCommunity.name }}</ion-label>
+            </ion-chip>
+          </div>
+        </ng-container>
+      </div>
+    </ng-container>
+
+    <ng-template #noLocalCommunities>
+      <p class="ion-text-center ion-padding">
+        No any communities found in this locality,<br>
+        <ion-button color="light" fill="clear" class="ion-margin" size="small"
+          routerLink="/charmed-circle/communities" routerDirection="forward">
+          Create Now <ion-icon name="ios-arrow-forward" slot="end"></ion-icon>
+        </ion-button>
+      </p>
+    </ng-template>
   </div>
+  
+  <ion-card>
+    <ion-item detail="true" lines="full" routerLink="/charmed-circle/communities" routerDirection="forward">
+      <ion-label>Explore Communities</ion-label>
+    </ion-item>
+  </ion-card>
 
   <ion-card>
     <ion-card-header>
-      <ion-card-title>Location</ion-card-title>
+      <ion-card-title>Current Location</ion-card-title>
     </ion-card-header>
 
     <ion-list *ngIf="locationService.location$ | async as location else noLocation">
-      <ion-item>
+      <!-- <ion-item>
         <ion-label>Latitude</ion-label>
         <p>{{ location.latitude }}</p>
       </ion-item>
       <ion-item>
         <ion-label>Longitude</ion-label>
         <p>{{ location.longitude }}</p>
-      </ion-item>
+      </ion-item> -->
 
       <span *ngIf="location?.area as area else noArea">
         <ion-item>
           <ion-label>Country</ion-label>
-          <p>{{ area.country }} ({{ area.countryCode }})</p>
+          <p>{{ area.countryName }} ({{ area.countryCode }})</p>
         </ion-item>
         <ion-item>
           <ion-label>State</ion-label>
-          <p>{{ area.state }} ({{ area.administrativeArea }})</p>
+          <p>{{ area.administrativeArea }}</p>
         </ion-item>
         <ion-item>
           <ion-label>City</ion-label>
-          <p>{{ area.city }} ({{ area.subAdministrativeArea }})</p>
-        </ion-item>
-        <ion-item>
-          <ion-label>Postal code</ion-label>
-          <p>{{ area.postalCode }}</p>
-        </ion-item>
-        <ion-item>
-          <ion-label>Sublocality</ion-label>
-          <p>{{ area.subLocality }}, {{ area.thoroughFare }}, {{ area.subThoroughDare }}</p>
-        </ion-item>
-        <ion-item>
-          <ion-label>Nearby areas</ion-label>
-          <p>{{ area.areasOfInterest | json }}</p>
+          <p>{{ area.subAdministrativeArea }}</p>
         </ion-item>
       </span>
 
@@ -70,12 +139,11 @@
       </ng-template>
     </ion-list>
 
-    <p>{{ location | async }}</p>
-
     <ng-template #noLocation>
       <ion-item>
         <ion-label>Location data not available</ion-label>
       </ion-item>
     </ng-template>
   </ion-card>
+
 </ion-content>
