@@ -45,7 +45,7 @@ export class AnswersPage implements OnInit {
     private accountService: AccountService,
     private locationService: LocationService,
     private communityService: CommunityService,
-    private queAnsService: QueAnsService,
+    public queAnsService: QueAnsService,
     private utilService: UtilService
   ) {
     const urlParts = this.router.url.split('/')
@@ -129,6 +129,15 @@ export class AnswersPage implements OnInit {
 
     if (this.communityDetails.isPending){
       this.utilService.alertPendingCommunity();
+      return;
+    }
+
+    // check if already this user has answered
+    const uid = this.authService.user$.value.uid;
+    if (this.answers.find(answer => {
+      return answer.uid == uid
+    })){
+      this.utilService.showToast(`You have already answered`);
       return;
     }
 

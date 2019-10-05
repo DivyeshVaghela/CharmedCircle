@@ -14,7 +14,7 @@
 
 <ion-content padding>
 
-  <ion-card *ngIf="!localitySelection.useLocation">
+  <ion-card *ngIf="!localitySelection.useLocation && localitySelection.countryCode">
     <ion-card-header>
       <ion-card-title>Selected Locality</ion-card-title>
     </ion-card-header>
@@ -45,14 +45,14 @@
     
       <ion-item>
         <ion-label>State</ion-label>
-        <ion-select placeholder="Select State.." formControlName="state">
+        <ion-select placeholder="Select State.." formControlName="state" disabled="true">
           <ion-select-option *ngFor="let state of states" [value]="state.state">{{ state.state }}</ion-select-option>
         </ion-select>
       </ion-item>
     
       <ion-item>
         <ion-label>Locality</ion-label>
-        <ion-select placeholder="Select City/Village.." formControlName="locality">
+        <ion-select placeholder="Select City/Village.." formControlName="locality" disabled="true">
           <ion-select-option *ngFor="let locality of localities" [value]="locality.city">{{ locality.city }}</ion-select-option>
         </ion-select>
       </ion-item>
@@ -63,10 +63,10 @@
     <!-- Detect based on GPS -->
     <ion-item lines="full">
       <ion-label>Use my location</ion-label>
-      <ion-checkbox slot="end" formControlName="useLocation" #useLocation></ion-checkbox>
+      <ion-checkbox slot="end" formControlName="useLocation"></ion-checkbox>
     </ion-item>
 
-    <ion-card *ngIf="locationForm.get('useLocation').value">
+    <ion-card *ngIf="showCurrentLocation">
       <ion-card-header>
         <ion-card-title>Current Location</ion-card-title>
       </ion-card-header>

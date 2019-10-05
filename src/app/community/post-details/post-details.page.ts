@@ -35,7 +35,7 @@ export class PostDetailsPage implements OnInit {
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
 
-    private postService: PostService,
+    public postService: PostService,
     private accountService: AccountService,
     private authService: AuthService,
     private locationService: LocationService,

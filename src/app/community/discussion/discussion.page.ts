@@ -109,7 +109,7 @@ export class DiscussionPage implements OnInit, OnDestroy {
       await this.utilService.alertPendingCommunity();
       this.router.navigateByUrl(`/charmed-circle/community/${this.areaId}/${this.communityId}/discussion-list`);
       return;
-    } else if (await this.utilService.checkMemberOfCommunity(this.areaId, this.communityId)){
+    } else if (!await this.utilService.checkMemberOfCommunity(this.areaId, this.communityId)){
       this.router.navigateByUrl(`/charmed-circle/community/${this.areaId}/${this.communityId}/discussion-list`);
       return;
     }

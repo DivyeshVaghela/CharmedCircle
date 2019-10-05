@@ -38,7 +38,7 @@ export class DiscussionDetailsPage implements OnInit {
     private router: Router,
     private modalCtrl: ModalController,
 
-    private authService: AuthService,
+    public authService: AuthService,
     private accountService: AccountService,
     private locationService: LocationService,
     private communityService: CommunityService,

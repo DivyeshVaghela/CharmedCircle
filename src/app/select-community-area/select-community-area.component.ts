@@ -24,10 +24,12 @@ export class SelectCommunityAreaComponent implements OnInit {
   states: {state: string}[];
   localities: {city: string}[];
 
+  showCurrentLocation: boolean = false;
+
   constructor(
     private modalCtrl: ModalController,
 
-    private locationService: LocationService
+    public locationService: LocationService
   ) { }
 
   ngOnInit() {
@@ -62,11 +64,21 @@ export class SelectCommunityAreaComponent implements OnInit {
       }
     });
 
-    this.locationForm.get('useLocation').valueChanges.subscribe(value => {
+    this.locationForm.get('useLocation').valueChanges.subscribe(async value => {
       if (value == true){
-        this.locationForm.get('manualSelector').reset();
+        const gpsOn = await this.locationService.askToTurnOnGPS(false);
+        if (!gpsOn){
+          this.locationForm.get('useLocation').setValue(false);
+        } else {
+          this.locationForm.get('manualSelector').reset();
+          this.showCurrentLocation = true;
+        }
+      } else {
+        this.showCurrentLocation = false;
       }
     });
+
+    this.showCurrentLocation = this.localitySelection.useLocation;
   }
 
   uncheckLocation(){
@@ -75,7 +87,7 @@ export class SelectCommunityAreaComponent implements OnInit {
 
   async getCountries(){
     this.countries = await this.locationService.getCountries();
-    if (this.localitySelection.useLocation == false){
+    if (this.localitySelection.useLocation == false && this.localitySelection.countryCode != null){
       this.localitySelection.countryName = this.countries.find(country => country.countryCode == this.localitySelection.countryCode).country;
     }
   }

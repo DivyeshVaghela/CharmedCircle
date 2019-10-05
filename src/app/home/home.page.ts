@@ -26,17 +26,13 @@ export class HomePage implements OnInit {
 
   constructor(
     public authService: AuthService,
-    private locationService: LocationService,
+    public locationService: LocationService,
     private communityService: CommunityService,
     private accounService: AccountService,
-    private generalService: GeneralService
-  ) {
-
-  }
+    public generalService: GeneralService
+  ) { }
   
-  ngOnInit(): void {
-    
-  }
+  ngOnInit(): void { }
 
   ionViewWillEnter(){
     this.authService.user$.subscribe(user => {

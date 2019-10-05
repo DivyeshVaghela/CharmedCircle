@@ -1,0 +1,14 @@
+<ion-content padding>
+
+  <div class="screen-centered-content">
+    <div>
+      <img [src]="imagePath">
+      <p [innerHTML]="message"></p>
+
+      <ion-button *ngIf="showRefresh" (click)="redirect()" fill="clear">
+        <ion-icon name="refresh" slot="start"></ion-icon> Refresh
+      </ion-button>
+    </div>
+  </div>
+
+</ion-content>

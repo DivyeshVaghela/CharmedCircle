@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { QuestionListPage } from './question-list.page';
 import { QuestionFormPage } from '../question-form/question-form.page';
+import { QuestionFormPageModule } from '../question-form/question-form.module';
 
 const routes: Routes = [
   {
@@ -21,7 +22,7 @@ const routes: Routes = [
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
   ],
   declarations: [
     QuestionListPage,

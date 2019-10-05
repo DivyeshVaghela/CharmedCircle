@@ -136,11 +136,11 @@
         </ng-template>
       </ion-card>
 
-      <!-- <ion-card *ngIf="authService.user$.value.uid === discussion.uid && discussion.isActive">
+      <ion-card *ngIf="authService.user$.value.uid === discussion.uid && discussion.isActive">
         <ion-button color="danger" fill="outline" expand="block" class="ion-no-margin" (click)="closeDiscussion()">
           <ion-icon name="close" slot="start"></ion-icon> Close Discussion
         </ion-button>
-      </ion-card> -->
+      </ion-card>
     </div>
 
   </ng-container>

@@ -17,7 +17,7 @@ export class MenuPage implements OnInit {
   @ViewChild(IonMenu, { static: true }) menu: IonMenu;
 
   constructor(
-    private authService: AuthService,
+    public authService: AuthService,
     private router: Router
   ) {
 

@@ -10,6 +10,11 @@ import { timer } from 'rxjs';
 
 import * as $ from 'jquery';
 
+import { Network } from '@ionic-native/network/ngx';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { DiagnosticService } from './services/diagnostic.service';
+import { ErrorCode } from './models/error-code.model';
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -20,8 +25,13 @@ export class AppComponent implements AfterViewInit {
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
+
+    private afStore: AngularFirestore,
     private authService: AuthService,
+    private diagnosticService: DiagnosticService,
+    
     private router: Router,
+    private network: Network,
     private ngZone: NgZone
   ) {
     this.initializeApp();
@@ -37,6 +47,27 @@ export class AppComponent implements AfterViewInit {
       this.splashScreen.hide();
 
       this.orientation = (window.innerHeight > window.innerWidth) ? 'portrait' : 'landscape';
+
+      if (!this.diagnosticService.isNetworkConnected(false)){
+        this.afStore.firestore.disableNetwork();
+      }
+
+      this.network.onConnect()
+        .subscribe(value => {
+          this.afStore.firestore.enableNetwork();
+        });
+      this.network.onDisconnect()
+        .subscribe(value => {
+          this.afStore.firestore.disableNetwork();
+          this.ngZone.run(() => {
+            this.router.navigate(['/error',], {
+              queryParams: {
+                code: ErrorCode.NETWORK_CONNECTION_ERROR,
+                returnUrl: this.router.url
+              }
+            });
+          });
+        });
 
       timer(3000).subscribe(() => {
         this.showSplash = false

@@ -4,7 +4,7 @@ import { Router, NavigationStart } from '@angular/router';
 import { ModalController, AlertController, ToastController } from '@ionic/angular';
 
 import { Subscription } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
+import { filter, take, catchError } from 'rxjs/operators';
 
 import { AuthService } from '../services/auth.service';
 import { LocationService } from '../services/location.service';
@@ -82,13 +82,30 @@ export class CommunitiesPage implements OnInit {
     this.loadCommunities();
   }
 
-  loadCommunities(){
+  async loadCommunities(){
 
-    this.selectedAreaId = this.localitySelection.useLocation == true ? this.locationService.getAreaId() : this.locationService.getAreaId({
-      countryCode: this.localitySelection.countryCode,
-      state: this.localitySelection.state,
-      city: this.localitySelection.locality
-    });
+    const gpsOn = await this.locationService.askToTurnOnGPS(false);
+    if (!gpsOn){
+      this.localitySelection.useLocation = false;
+      this.selectLocality();
+      return;
+    }
+
+    if (this.localitySelection.useLocation == true){
+      this.selectedAreaId = this.locationService.getAreaId();
+      if (this.selectedAreaId == null){
+        this.localitySelection.useLocation = false;
+        this.selectLocality();
+        return;
+      }
+    } else {
+      this.selectedAreaId = this.locationService.getAreaId({
+        countryCode: this.localitySelection.countryCode,
+        state: this.localitySelection.state,
+        city: this.localitySelection.locality
+      });
+    }
+    
     this.locationService.getCommunityArea(this.selectedAreaId)
       .pipe(take(1))
       .subscribe(communityArea => this.selectedCommunityArea = communityArea);

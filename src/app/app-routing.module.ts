@@ -7,6 +7,7 @@ const routes: Routes = [
   { path: 'landing-check', loadChildren: './landing-check/landing-check.module#LandingCheckPageModule' },
   { path: 'login', loadChildren: './login/login.module#LoginPageModule' },
   { path: 'charmed-circle', loadChildren: () => import('./menu/menu.module').then(m => m.MenuPageModule) },
+  { path: 'error', loadChildren: './error/error.module#ErrorPageModule' },
 ];
 
 @NgModule({

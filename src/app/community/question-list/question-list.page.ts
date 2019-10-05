@@ -37,7 +37,7 @@ export class QuestionListPage implements OnInit {
     private authService: AuthService,
     private accountService: AccountService,
     private communityService: CommunityService,
-    private queAnsService: QueAnsService,
+    public queAnsService: QueAnsService,
     private utilService: UtilService
   ) {
     const urlParts = this.router.url.split('/')

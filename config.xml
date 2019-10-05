@@ -25,6 +25,8 @@
     <preference name="KeyboardResize" value="true" />
     <preference name="fullscreen" value="false" />
     <platform name="android">
+        <replace-string file="project.properties" find="com.google.android.gms:play-services-auth:11.8.0" replace="com.google.android.gms:play-services-auth:+" />
+        <replace-string file="project.properties" find="com.google.android.gms:play-services-identity:11.8.0" replace="com.google.android.gms:play-services-identity:+" />
         <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application" xmlns:android="http://schemas.android.com/apk/res/android">
             <application android:networkSecurityConfig="@xml/network_security_config" />
         </edit-config>

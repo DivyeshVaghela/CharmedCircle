@@ -21,6 +21,8 @@ import { Area } from '../models/area.model';
 import { CommunityArea } from '../models/community-area.model';
 import { SlugifyPipe } from '../pipes/slugify.pipe';
 import { GeneralService } from './general.service';
+import { LocationAccuracy } from '@ionic-native/location-accuracy/ngx';
+import { AndroidPermissions, AndroidPermissionResponse } from '@ionic-native/android-permissions/ngx';
 
 
 @Injectable({
@@ -41,6 +43,7 @@ export class LocationService implements OnDestroy {
     private platform: Platform,
     private geolocation: Geolocation,
     private nativeGeocoder: NativeGeocoder,
+    private locationAccuracy: LocationAccuracy,
     
     private storage: Storage,
     private afStore: AngularFirestore,
@@ -48,7 +51,8 @@ export class LocationService implements OnDestroy {
     private accountService: AccountService,
     private authService: AuthService,
     private slugifyPipe: SlugifyPipe,
-    private generalService: GeneralService) {
+    private generalService: GeneralService,
+    private androidPermissions: AndroidPermissions) {
 
     this.platform.ready().then(() => {
 
@@ -115,7 +119,10 @@ export class LocationService implements OnDestroy {
   }
 
   stopLocationTraking(){
-    if (this.watchLocationSubscription != null) this.watchLocationSubscription.unsubscribe();
+    if (this.watchLocationSubscription != null){
+      this.watchLocationSubscription.unsubscribe();
+      this.watchLocationSubscription = null;
+    }
   }
 
   async resolveReverseGeocode(position: Location): Promise<Area> {
@@ -174,6 +181,7 @@ export class LocationService implements OnDestroy {
 
       area = this.location$.value.area;
     }
+
     const countryCodeSlug = this.slugifyPipe.transform(area.countryCode.toLowerCase());
     const stateSlug = this.slugifyPipe.transform(area.state.toLowerCase());
     const citySlug = this.slugifyPipe.transform(area.city.toLowerCase());
@@ -231,5 +239,54 @@ export class LocationService implements OnDestroy {
     const result = await fireSQL.query<{ city: string }>(query);
 
     return this.generalService.distinct<{ city: string }>(result, 'city');
+  }
+
+  /**
+   * Permission related things
+   */
+  checkLoacationPermission(): Promise<AndroidPermissionResponse>{
+    return this.androidPermissions.checkPermission(this.androidPermissions.PERMISSION.ACCESS_COARSE_LOCATION);
+  }
+
+  async isLocationPermissionProvided(exitApp: boolean = true): Promise<boolean>{
+    try{
+      const response = await this.checkLoacationPermission();
+      if (!response.hasPermission && exitApp)
+        navigator['app'].exitApp();
+      return response.hasPermission;
+    } catch(error){
+      console.log('Permission check error', error);
+      return false;
+    }
+  }
+
+  
+  async askToTurnOnGPS(exitApp: boolean = true): Promise<boolean>{
+    /**
+     * code 0: Location settings satisfied
+     * code 1: Granted
+     * code 2: not granted
+     */
+    try{
+      const status = await this.locationAccuracy.request(this.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY);
+
+      this.stopLocationTraking();
+      this.startLocationTracking();
+
+      if (status.code === this.locationAccuracy.SUCCESS_USER_AGREED){
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            resolve(true);
+          }, 2000);
+        });
+      }
+
+      return true;
+    } catch (error){
+      console.log('Error location permission asking', error);
+      if (exitApp)
+        navigator['app'].exitApp();
+      return false;
+    }
   }
 }

@@ -8,9 +8,12 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { IonicStorageModule } from '@ionic/storage';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { LocationAccuracy } from '@ionic-native/location-accuracy/ngx';
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
 import { Camera } from '@ionic-native/camera/ngx';
 import { File } from '@ionic-native/file/ngx';
+import { Network } from '@ionic-native/network/ngx';
+import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 
 import { environment } from '../environments/environment';
 import { AngularFireModule } from '@angular/fire';
@@ -38,20 +41,23 @@ import { SlugifyPipe } from './pipes/slugify.pipe';
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
     AngularFirestoreModule,
-    AngularFireStorageModule
+    AngularFireStorageModule,
   ],
   providers: [
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
 
+    AndroidPermissions,
     GooglePlus,
     Geolocation,
+    LocationAccuracy,
     NativeGeocoder,
     Camera,
     File,
+    Network,
 
-    SlugifyPipe
+    SlugifyPipe,
   ],
   bootstrap: [AppComponent]
 })

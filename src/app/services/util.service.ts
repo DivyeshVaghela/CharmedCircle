@@ -77,12 +77,16 @@ export class UtilService {
   }
   
   async checkMemberOfCommunity(areaId: string, communityId: string, uid?: string, showAlert: boolean = true, message?: string): Promise<boolean>{
-    const isMember = this.communityService.isMember(areaId, communityId, uid);
+    let isMember: boolean;
+    if (uid)
+      isMember = this.communityService.isMember(areaId, communityId, uid);
+    else
+      isMember = this.communityService.isMember(areaId, communityId);
 
     if (isMember) return true;
 
     if (showAlert)
-      this.alertNotMember(areaId, communityId, message);
+      await this.alertNotMember(areaId, communityId, message);
 
     return false;
   }

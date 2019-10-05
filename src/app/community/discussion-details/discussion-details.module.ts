@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { DiscussionDetailsPage } from './discussion-details.page';
 import { CloseDiscussionFormPage } from '../close-discussion-form/close-discussion-form.page';
+import { CloseDiscussionFormPageModule } from '../close-discussion-form/close-discussion-form.module';
 
 const routes: Routes = [
   {
@@ -21,7 +22,7 @@ const routes: Routes = [
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
   ],
   declarations: [
     DiscussionDetailsPage,

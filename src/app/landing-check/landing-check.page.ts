@@ -1,7 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { Router, ActivatedRoute } from '@angular/router';
+
 import { Subscription } from 'rxjs';
+
+import { AuthService } from '../services/auth.service';
+import { DiagnosticService } from '../services/diagnostic.service';
+import { LocationService } from '../services/location.service';
 
 @Component({
   selector: 'app-landing-check',
@@ -14,22 +18,41 @@ export class LandingCheckPage implements OnInit, OnDestroy {
   private counter = 0;
 
   constructor(
+    private activatedRoute: ActivatedRoute,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private diagnosticService: DiagnosticService,
+    private locationService: LocationService
   ) { }
 
   ngOnInit() {
-    this.subscription = this.authService.user$.subscribe(userInfo => {
-      this.counter++;
-      if (this.counter > 1){
-        this.releaseResources();
-        if (userInfo == null){
-          this.router.navigateByUrl('/login', { replaceUrl: true });
-        } else {
-          this.router.navigateByUrl('/charmed-circle', { replaceUrl: true });
+  }
+
+  async ionViewWillEnter(){
+    const networkConnected = this.diagnosticService.isNetworkConnected();
+
+    if (networkConnected){
+      const gpsOn = await this.locationService.askToTurnOnGPS(true);
+      if (gpsOn){
+        if (this.activatedRoute.snapshot.queryParams.confirmation){
+          this.redirect(this.authService.user$.value);
+          return;
         }
-      }  
-    });
+        this.subscription = this.authService.user$.subscribe(userInfo => {
+          this.counter++;
+          if (this.counter > 1){
+            this.redirect(userInfo);
+          }
+        });
+      }
+    }
+  }
+
+  redirect(userInfo){
+    let replaceUrl = '/charmed-circle';
+    if (userInfo == null)
+      replaceUrl = '/login';
+    this.router.navigateByUrl(replaceUrl, { replaceUrl: true });
   }
 
   releaseResources(){

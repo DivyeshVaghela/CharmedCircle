@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { PostListPage } from './post-list.page';
 import { PostFormPage } from '../post-form/post-form.page';
+import { PostFormPageModule } from '../post-form/post-form.module';
 
 const routes: Routes = [
   {
@@ -21,11 +22,11 @@ const routes: Routes = [
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
   ],
   declarations: [
     PostListPage,
-    PostFormPage,
+    PostFormPage
   ],
   entryComponents: [
     PostFormPage

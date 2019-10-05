@@ -38,7 +38,7 @@ export class PostListPage implements OnInit {
     private authService: AuthService,
     private accountService: AccountService,
     private locationService: LocationService,
-    private postService: PostService,
+    public postService: PostService,
     private communityService: CommunityService,
     private utilService: UtilService
   ) {

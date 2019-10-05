@@ -44,7 +44,9 @@ export class LoginPage implements OnInit {
         loading.dismiss();
       }).catch((error) => {
         loading.dismiss();
-        this.utilService.showToast('There was some problem in signing in, please try again');
+        if (error.error !== 12501){
+          this.utilService.showToast('There was some problem in signing in, please try again');
+        }
       });
     } else {
       console.log('Not Supported sign in provider');

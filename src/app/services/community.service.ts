@@ -12,6 +12,7 @@ import { SlugifyPipe } from '../pipes/slugify.pipe';
 import { CommunityArea } from '../models/community-area.model';
 import { LocationService } from './location.service';
 import { User } from '../models/user.model';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -161,8 +162,10 @@ export class CommunityService {
     
     const found = user.joinedCommunities.find(joinedCommunity => {
       return joinedCommunity.areaId == areaId && joinedCommunity.communityId == communityId;
-    })
+    });
 
-    return found;
+    if (found)
+      return true;
+    return false;
   }
 }

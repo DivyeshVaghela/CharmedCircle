@@ -70,24 +70,31 @@ export class AuthService {
     return userRef.set(data, { merge: true });
   }
 
-  async googleSignin() {
-    try {
+  async googleSignin(): Promise<any> {
+    return new Promise(async (resolve, reject) => {
 
-      const response = await this.googlePlus.login({});
-      const credential = await this.afAuth.auth.signInWithCredential(
-        auth.GoogleAuthProvider.credential(null, response.accessToken)
-      );
+      try {
 
-      // const provider = new auth.GoogleAuthProvider();
-      // const credential = await this.afAuth.auth.signInWithPopup(provider);
-      this.updateUserInFirestore(credential.user, 'google');
-      // await this.afAuth.auth.signInWithRedirect(provider);
-    } catch (error) {
-      if (error.code == 'auth/network-request-failed' || error == 7) {
-        console.log('Make sure that you are connected to the internet');
+        const response = await this.googlePlus.login({});
+
+        const credential = await this.afAuth.auth.signInWithCredential(
+          auth.GoogleAuthProvider.credential(null, response.accessToken)
+        );
+
+        // const provider = new auth.GoogleAuthProvider();
+        // const credential = await this.afAuth.auth.signInWithPopup(provider);
+        this.updateUserInFirestore(credential.user, 'google');
+        // await this.afAuth.auth.signInWithRedirect(provider);
+
+        resolve({success: true});
+      } catch (error) {
+        if (error.code == 'auth/network-request-failed' || error == 7) {
+          console.log('Make sure that you are connected to the internet');
+        }
+        console.log('Error', error);
+        reject({ success: false, error: error });
       }
-      console.log(error);
-    }
+    });
   }
 
   /**
